@@ -2,22 +2,22 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>O Poder do Dedo - Mentimeter Style</title>
+  <title>O Poder do Dedo - com Chat & Vídeo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase App (compat) + Realtime Database (compat) + Storage (compat) -->
+  <!-- Firebase (compat) - App, Database, Storage -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-storage-compat.js"></script>
 
-  <!-- Pequena biblioteca de QRCode -->
+  <!-- QRCode lib -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     body {
       margin: 0; padding: 0;
       font-family: Arial, sans-serif;
-      background: #222;
+      background: #222; 
       color: #fff;
       min-height: 100vh;
       display: flex; 
@@ -26,9 +26,17 @@
       justify-content: flex-start;
     }
     h1, h2, h3 { text-align: center; }
-    a { color: #0ff; }
+    .container {
+      background: #333;
+      border: 1px solid #555;
+      border-radius: 6px;
+      width: 95%;
+      max-width: 600px;
+      margin-top: 20px;
+      padding: 15px;
+    }
     button {
-      padding: 10px 14px;
+      padding: 8px 12px;
       background: #444;
       border: 1px solid #666;
       cursor: pointer;
@@ -41,17 +49,7 @@
       margin: 6px 0;
     }
     .hidden { display: none !important; }
-    .container {
-      width: 95%;
-      max-width: 600px;
-      background: #333;
-      border: 1px solid #555;
-      border-radius: 8px;
-      padding: 20px;
-      margin-top: 20px;
-    }
-    .center { text-align: center; }
-    .row { display: flex; flex-direction: row; gap: 10px; margin: 5px 0; }
+    .row { display: flex; gap: 10px; }
     .player-photo {
       width: 40px; 
       height: 40px; 
@@ -61,37 +59,47 @@
       margin-right: 5px;
     }
     .card-front {
-      width: 100px;
-      height: 140px;
+      width: 80px;
+      height: 120px;
       background: #fff;
       position: relative;
       color: #000;
       border: 2px solid #000;
       border-radius: 5px;
-      margin: 0 auto;
+      margin: 5px 0;
     }
     .card-rank-suit {
       position: absolute;
       top: 8px; left: 8px;
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       font-weight: bold;
     }
     .red { color: red; }
     .black { color: black; }
     .card-back {
-      width: 30px; 
-      height: 40px; 
-      background: #aaa;
-      border-radius: 3px;
+      width: 20px; 
+      height: 30px; 
+      background: #999;
+      border-radius: 2px;
       display: inline-block;
       margin: 2px;
+    }
+    .log, .chat-box {
+      background: #111;
+      border: 1px solid #666;
+      border-radius: 4px;
+      max-height: 150px;
+      overflow-y: auto;
+      padding: 6px;
+      margin-top: 10px;
+      font-size: 0.9rem;
     }
     .rules-list {
       background: #444;
       border: 1px solid #666;
-      border-radius: 5px;
-      margin: 5px 0;
-      padding: 8px;
+      border-radius: 4px;
+      padding: 6px;
+      min-height: 40px;
     }
     .rule-item {
       background: #555;
@@ -99,38 +107,30 @@
       padding: 4px;
       border-radius: 3px;
     }
-    .log {
-      background: #111; 
-      border: 1px solid #666;
-      max-height: 150px;
-      overflow-y: auto;
-      padding: 10px;
-      border-radius: 5px;
-      margin-top: 10px;
-      font-size: 0.9rem;
-    }
     .finger-box {
       background: #555; 
       padding: 10px; 
       margin: 10px 0; 
       border-radius: 5px;
     }
-    video {
-      max-width: 100%; 
-      background: #000;
+    #cameraOverlay, #videoOverlay {
+      position: fixed; 
+      top:0; left:0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
-    .small-btn {
-      padding: 5px 10px; 
-      font-size: 0.9rem;
-      margin-left: 5px;
-      background: #666;
-    }
+    video { background: #000; }
   </style>
 </head>
-
 <body>
-<h1>O Poder do Dedo</h1>
+<h1>O Poder do Dedo - Chat & Vídeo</h1>
 
+<!-- Seletor de Modo (Host/Jogador) -->
 <div id="modeSelect" class="container">
   <h2>Você é o Organizador ou Jogador?</h2>
   <button id="btnHost">Organizador</button>
@@ -139,96 +139,113 @@
 
 <!-- HOST AREA -->
 <div id="hostArea" class="container hidden">
-  <h2>Modo Organizador</h2>
+  <h2>Organizador</h2>
+  <!-- Step 1: criar ou entrar -->
   <div id="hostStep1">
     <button id="btnCreateGame">Criar Nova Partida</button>
     <p>ou</p>
-    <div class="row">
-      <input type="text" id="inputGameCodeHost" placeholder="Digite código para entrar"/>
-      <button id="btnJoinGameHost">Entrar Partida Existente</button>
+    <div class="row" style="align-items: center;">
+      <input type="text" id="inputGameCodeHost" placeholder="Código da Partida"/>
+      <button id="btnJoinGameHost">Entrar</button>
     </div>
   </div>
 
+  <!-- Lobby -->
   <div id="hostLobby" class="hidden">
     <h3>Código da Partida: <span id="hostGameCode"></span></h3>
-    <div id="qrCodeContainer" class="center"></div>
+    <div class="center" id="qrCodeContainer"></div>
     <p class="center" id="hostLinkInfo"></p>
     <h4>Jogadores Conectados</h4>
     <div id="hostPlayersList"></div>
     <button id="btnStartGame">Iniciar Partida</button>
   </div>
 
+  <!-- Jogo -->
   <div id="hostGame" class="hidden">
     <div class="row" style="justify-content: space-between;">
       <div>
-        <h3>Baralho</h3>
+        <h4>Baralho</h4>
         <div id="deckCount"></div>
-        <div id="deckSmallView"></div>
+        <div id="deckView"></div>
       </div>
       <div>
-        <h3>Carta Atual</h3>
-        <div id="currentCardHost">Nenhuma carta</div>
+        <h4>Carta Atual</h4>
+        <div id="currentCardHost">Nenhuma</div>
         <button id="btnDrawCard">Puxar Carta</button>
       </div>
     </div>
-
     <h4>Regras Ativas</h4>
-    <div id="rulesBox" class="rules-list">Nenhuma</div>
+    <div id="hostRules" class="rules-list"></div>
 
     <h4>Jogadores</h4>
     <div id="hostPlayersStatus"></div>
 
-    <button id="btnEndGame">Encerrar Partida</button>
     <h4>Log</h4>
     <div id="hostLog" class="log"></div>
+
+    <h4>Chat</h4>
+    <div class="chat-box" id="hostChat"></div>
+    <div class="row">
+      <input type="text" id="hostChatInput" placeholder="Digite uma mensagem"/>
+      <button id="btnHostSendChat">Enviar</button>
+    </div>
+
+    <button id="btnEndGame" style="margin-top:10px;">Encerrar Partida</button>
   </div>
 </div>
 
 <!-- PLAYER AREA -->
 <div id="playerArea" class="container hidden">
-  <h2>Modo Jogador</h2>
+  <h2>Jogador</h2>
+  <!-- Step 1: Digitar código ou link -->
   <div id="playerStep1">
-    <div class="row">
-      <input type="text" id="inputGameCodePlayer" placeholder="Digite o código da partida"/>
+    <div class="row" style="align-items: center;">
+      <input type="text" id="inputGameCodePlayer" placeholder="Código da Partida"/>
       <button id="btnEnterCodePlayer">Entrar</button>
     </div>
-    <p class="center">ou use o link/QR Code fornecido pelo Organizador</p>
+    <p class="center">ou use o link/QR code</p>
   </div>
 
+  <!-- Cadastro Nome/Foto -->
   <div id="playerRegister" class="hidden">
     <h3>Digite seu Nome</h3>
-    <input type="text" id="inputPlayerName" placeholder="Seu nome" />
+    <input type="text" id="inputPlayerName" placeholder="Seu nome"/>
     <h4>Foto (opcional)</h4>
-    <input type="file" id="filePlayerPhoto" accept="image/*" />
-    <p class="center">ou</p>
+    <input type="file" id="filePlayerPhoto" accept="image/*"/>
+    <p>ou</p>
     <button id="btnOpenCamera">Tirar Foto Agora</button>
 
-    <div id="cameraOverlay" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);color:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+    <!-- Overlay da Câmera -->
+    <div id="cameraOverlay">
       <video id="cameraPreview" autoplay muted playsinline style="max-width:80%;border:2px solid #fff;"></video>
       <div>
         <button id="btnCapturePhoto">Capturar</button>
         <button id="btnCloseCamera">Fechar</button>
       </div>
     </div>
+    <img id="previewPhoto" src="" alt="" style="max-width:100px;display:none;margin:5px 0;" />
 
-    <img id="previewPhoto" src="" alt="" style="max-width:100px; display:none; margin:10px 0;" />
     <button id="btnJoinPlayerGame">Entrar na Partida</button>
   </div>
 
+  <!-- Lobby -->
   <div id="playerLobby" class="hidden">
-    <h3>Aguardando Organizador iniciar a partida...</h3>
+    <h3>Aguardando Organizador iniciar...</h3>
     <div id="playerLobbyList"></div>
   </div>
 
+  <!-- Jogo -->
   <div id="playerGame" class="hidden">
     <h4 id="playerInfo"></h4>
     <div class="row" style="justify-content: space-between;">
       <div>
         <h4>Carta Atual</h4>
-        <div id="currentCardPlayer">Nenhuma carta</div>
+        <div id="currentCardPlayer">Nenhuma</div>
+        <!-- Se quiser permitir o jogador puxar carta, deixamos esse botão visível -->
+        <button id="btnDrawCardPlayer">Puxar Carta</button>
       </div>
       <div>
-        <h4>Regras Ativas</h4>
+        <h4>Regras</h4>
         <div id="playerRules" class="rules-list"></div>
       </div>
     </div>
@@ -240,29 +257,39 @@
       <div id="fingerQueue"></div>
     </div>
 
-    <div>
+    <div class="row" style="justify-content: space-between;">
       <button id="btnUseJoker" style="display:none;">Usar Coringa</button>
-      <button id="btnActivateFinger" style="display:none;">Usar Poder do Dedo (Carta 8)</button>
-      <button id="btnRecordVideo">Gravar Vídeo (Opcional)</button>
-      <div id="videoOverlay" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;flex-direction:column;">
-        <video id="videoPreview" autoplay muted playsinline style="max-width:80%;border:2px solid #fff;"></video>
-        <div>
-          <button id="btnStartRecording">Iniciar Gravação</button>
-          <button id="btnStopRecording">Parar Gravação</button>
-          <button id="btnCloseVideoOverlay">Fechar</button>
-        </div>
+      <button id="btnActivateFinger" style="display:none;">Poder do Dedo (8)</button>
+      <button id="btnRecordVideo">Gravar Vídeo</button>
+    </div>
+
+    <!-- Overlay de Vídeo -->
+    <div id="videoOverlay">
+      <video id="videoPreview" autoplay muted playsinline style="max-width:80%;border:2px solid #fff;"></video>
+      <div>
+        <button id="btnStartRecording">Iniciar</button>
+        <button id="btnStopRecording">Parar</button>
+        <button id="btnCloseVideoOverlay">Fechar</button>
       </div>
     </div>
 
+    <h4>Log</h4>
     <div id="playerLog" class="log"></div>
+
+    <h4>Chat</h4>
+    <div class="chat-box" id="playerChat"></div>
+    <div class="row">
+      <input type="text" id="playerChatInput" placeholder="Digite uma mensagem"/>
+      <button id="btnPlayerSendChat">Enviar</button>
+    </div>
   </div>
 </div>
 
 <script>
 /*
-  ----------------------------------------------------
-  CONFIGURAÇÃO DO SEU FIREBASE
-  ----------------------------------------------------
+  =========================================
+  1) CONFIG DO FIREBASE
+  =========================================
 */
 const firebaseConfig = {
   apiKey: "AIzaSyBQ5czr0wUqNxyqU9X_WHO3DrHOYEAPf7M",
@@ -279,75 +306,60 @@ const db = firebase.database();
 const storage = firebase.storage();
 
 /*
-  ----------------------------------------------------
-  VARIÁVEIS GLOBAIS
-  ----------------------------------------------------
+  =========================================
+  2) ELEMENTOS E VARIÁVEIS GLOBAIS
+  =========================================
 */
-let gameCode = null;        // código numérico do jogo (tipo Mentimeter)
-let myPlayerKey = null;     // ID do jogador no DB
-let myPhotoFile = null;     // Arquivo de foto do jogador (ou base64)
-let myPhotoURL = "";        // URL da foto após upload
-let localStream = null;     // MediaStream da câmera pro vídeo
-let mediaRecorder = null;   // Gravação de vídeo
-let recordedChunks = [];
-
-/*
-  ----------------------------------------------------
-  PEGAR ELEMENTOS
-  ----------------------------------------------------
-*/
-// Seletor de modo
 const modeSelect = document.getElementById('modeSelect');
 const btnHost = document.getElementById('btnHost');
 const btnPlayer = document.getElementById('btnPlayer');
 
-// Area Host
+// Host
 const hostArea = document.getElementById('hostArea');
 const hostStep1 = document.getElementById('hostStep1');
 const btnCreateGame = document.getElementById('btnCreateGame');
 const inputGameCodeHost = document.getElementById('inputGameCodeHost');
 const btnJoinGameHost = document.getElementById('btnJoinGameHost');
 const hostLobby = document.getElementById('hostLobby');
-const hostGameCodeSpan = document.getElementById('hostGameCode');
+const hostGame = document.getElementById('hostGame');
+const hostGameCode = document.getElementById('hostGameCode');
 const qrCodeContainer = document.getElementById('qrCodeContainer');
 const hostLinkInfo = document.getElementById('hostLinkInfo');
 const hostPlayersList = document.getElementById('hostPlayersList');
 const btnStartGame = document.getElementById('btnStartGame');
-
-const hostGame = document.getElementById('hostGame');
 const deckCount = document.getElementById('deckCount');
-const deckSmallView = document.getElementById('deckSmallView');
+const deckView = document.getElementById('deckView');
 const currentCardHost = document.getElementById('currentCardHost');
 const btnDrawCard = document.getElementById('btnDrawCard');
-const rulesBox = document.getElementById('rulesBox');
+const hostRules = document.getElementById('hostRules');
 const hostPlayersStatus = document.getElementById('hostPlayersStatus');
-const btnEndGame = document.getElementById('btnEndGame');
 const hostLog = document.getElementById('hostLog');
+const btnEndGame = document.getElementById('btnEndGame');
+const hostChat = document.getElementById('hostChat');
+const hostChatInput = document.getElementById('hostChatInput');
+const btnHostSendChat = document.getElementById('btnHostSendChat');
 
-// Area Player
+// Player
 const playerArea = document.getElementById('playerArea');
 const playerStep1 = document.getElementById('playerStep1');
 const inputGameCodePlayer = document.getElementById('inputGameCodePlayer');
 const btnEnterCodePlayer = document.getElementById('btnEnterCodePlayer');
-
 const playerRegister = document.getElementById('playerRegister');
 const inputPlayerName = document.getElementById('inputPlayerName');
 const filePlayerPhoto = document.getElementById('filePlayerPhoto');
-
 const cameraOverlay = document.getElementById('cameraOverlay');
 const cameraPreview = document.getElementById('cameraPreview');
 const btnOpenCamera = document.getElementById('btnOpenCamera');
 const btnCapturePhoto = document.getElementById('btnCapturePhoto');
 const btnCloseCamera = document.getElementById('btnCloseCamera');
 const previewPhoto = document.getElementById('previewPhoto');
-
 const btnJoinPlayerGame = document.getElementById('btnJoinPlayerGame');
 const playerLobby = document.getElementById('playerLobby');
 const playerLobbyList = document.getElementById('playerLobbyList');
-
 const playerGame = document.getElementById('playerGame');
 const playerInfo = document.getElementById('playerInfo');
 const currentCardPlayer = document.getElementById('currentCardPlayer');
+const btnDrawCardPlayer = document.getElementById('btnDrawCardPlayer');
 const playerRules = document.getElementById('playerRules');
 const fingerBox = document.getElementById('fingerBox');
 const btnFingerClick = document.getElementById('btnFingerClick');
@@ -361,102 +373,114 @@ const btnStartRecording = document.getElementById('btnStartRecording');
 const btnStopRecording = document.getElementById('btnStopRecording');
 const btnCloseVideoOverlay = document.getElementById('btnCloseVideoOverlay');
 const playerLog = document.getElementById('playerLog');
+const playerChat = document.getElementById('playerChat');
+const playerChatInput = document.getElementById('playerChatInput');
+const btnPlayerSendChat = document.getElementById('btnPlayerSendChat');
+
+// Variáveis
+let gameCode = null;
+let myPlayerKey = null;
+let myPhotoFile = null;
+let myPhotoURL = "";
+let localCameraStream = null;
+let mediaRecorder = null;
+let recordedChunks = [];
 
 /*
-  ----------------------------------------------------
-  EVENT LISTENERS
-  ----------------------------------------------------
+  =========================================
+  3) EVENT LISTENERS BÁSICOS
+  =========================================
 */
 btnHost.onclick = () => {
   modeSelect.classList.add('hidden');
   hostArea.classList.remove('hidden');
 };
+
 btnPlayer.onclick = () => {
   modeSelect.classList.add('hidden');
   playerArea.classList.remove('hidden');
 };
 
 // Host
-btnCreateGame.onclick = createNewGame;
+btnCreateGame.onclick = createGameAsHost;
 btnJoinGameHost.onclick = joinGameAsHost;
 btnStartGame.onclick = startGameHost;
 btnDrawCard.onclick = drawCardHost;
 btnEndGame.onclick = endGameHost;
+btnHostSendChat.onclick = sendChatAsHost;
 
 // Player
 btnEnterCodePlayer.onclick = enterCodePlayer;
-btnJoinPlayerGame.onclick = registerPlayerInGame;
-btnOpenCamera.onclick = openCameraOverlay;
-btnCloseCamera.onclick = closeCameraOverlay;
+filePlayerPhoto.onchange = handleFilePlayerPhoto;
+btnOpenCamera.onclick = openCamera;
+btnCloseCamera.onclick = closeCamera;
 btnCapturePhoto.onclick = capturePhoto;
-
-btnFingerClick.onclick = fingerClick;
+btnJoinPlayerGame.onclick = registerPlayerInGame;
+btnDrawCardPlayer.onclick = drawCardHost; // se vc quer que jogador tb possa puxar
 btnUseJoker.onclick = useJokerPlayer;
 btnActivateFinger.onclick = activateFingerPower;
-
-btnRecordVideo.onclick = () => videoOverlay.classList.remove('hidden');
+btnFingerClick.onclick = fingerClick;
+btnRecordVideo.onclick = () => { videoOverlay.style.display='flex'; };
 btnCloseVideoOverlay.onclick = closeVideoOverlay;
 btnStartRecording.onclick = startVideoRecording;
 btnStopRecording.onclick = stopVideoRecording;
+btnPlayerSendChat.onclick = sendChatAsPlayer;
 
 /*
-  ----------------------------------------------------
-  FUNÇÕES - GERAIS
-  ----------------------------------------------------
+  =========================================
+  4) FUNÇÕES GERAIS (BARALHO, CARTAS, ETC.)
+  =========================================
 */
-// Gera um código numérico aleatório (6 dígitos)
 function generateGameCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(100000 + Math.random()*900000).toString();
 }
 
-// Renderiza uma carta
+function generateDeck() {
+  const suits = ["♥","♦","♣","♠"];
+  const ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+  let deck = [];
+  for (let s of suits) {
+    for (let r of ranks) {
+      deck.push({rank:r, suit:s});
+    }
+  }
+  for (let i=0; i<3; i++){
+    deck.push({ rank:"Joker", suit:"Coringa"});
+  }
+  // shuffle
+  for (let i = deck.length -1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
 function renderCard(rank, suit) {
   if (rank === 'Joker') {
     return `
       <div class="card-front" style="background:#ffd700;">
-        <div style="position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);font-size:1rem;color:#000;">
+        <div style="position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); font-size:1rem; color:#000;">
           CORINGA
         </div>
       </div>
     `;
   }
-  const isRed = (suit === '♥' || suit === '♦');
+  const isRed = (suit==='♥'||suit==='♦');
   return `
     <div class="card-front">
-      <div class="card-rank-suit ${isRed ? 'red' : 'black'}">
+      <div class="card-rank-suit ${isRed?'red':'black'}">
         ${rank}${suit}
       </div>
     </div>
   `;
 }
 
-// Gera um baralho embaralhado
-function generateDeck() {
-  const suits = ["♥","♦","♣","♠"];
-  const ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
-  let newDeck = [];
-  for (let s of suits) {
-    for (let r of ranks) {
-      newDeck.push({ rank: r, suit: s });
-    }
-  }
-  for (let i=0; i<3; i++){
-    newDeck.push({ rank: "Joker", suit: "Coringa" });
-  }
-  // shuffle
-  for (let i = newDeck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [newDeck[i], newDeck[j]] = [newDeck[j], newDeck[i]];
-  }
-  return newDeck;
-}
-
 /*
-  ----------------------------------------------------
-  MODO HOST
-  ----------------------------------------------------
+  =========================================
+  5) MODO HOST
+  =========================================
 */
-async function createNewGame() {
+async function createGameAsHost() {
   gameCode = generateGameCode();
   const ref = db.ref(`games/${gameCode}`);
   const deck = generateDeck();
@@ -474,110 +498,121 @@ async function createNewGame() {
       owner: null,
       queue: []
     },
-    videos: []
+    chat: []
   };
   await ref.set(initialData);
 
-  showHostLobby();
-  hostGameCodeSpan.textContent = gameCode;
-  generateQRCode(gameCode);
-  hostLinkInfo.innerHTML = `Link p/ jogadores: ${location.origin + location.pathname}?gameId=${gameCode}`;
+  showHostLobby(gameCode);
+  subscribeHost(gameCode);
+}
 
-  // Ouvir mudanças
-  ref.on('value', snapshot => {
-    const data = snapshot.val();
-    if (!data) return;
-    renderHostLobby(data);
-    if (data.status === 'ongoing') {
+async function joinGameAsHost() {
+  const code = inputGameCodeHost.value.trim();
+  if (!code) return alert("Digite código!");
+  const snap = await db.ref(`games/${code}`).once('value');
+  if (!snap.exists()) {
+    alert("Partida não encontrada!");
+    return;
+  }
+  gameCode = code;
+  showHostLobby(code);
+  subscribeHost(code);
+}
+
+function showHostLobby(code) {
+  hostStep1.classList.add('hidden');
+  hostLobby.classList.remove('hidden');
+  hostGameCode.textContent = code;
+  qrCodeContainer.innerHTML = '';
+  new QRCode(qrCodeContainer, {
+    text: location.origin + location.pathname + '?gameId='+code,
+    width: 160,
+    height: 160
+  });
+  hostLinkInfo.innerHTML = `Link: ${location.origin + location.pathname}?gameId=${code}`;
+}
+
+function subscribeHost(code) {
+  db.ref(`games/${code}`).on('value', snap => {
+    if (!snap.exists()) return;
+    const data = snap.val();
+    // se status lobby, renderLobby
+    if (data.status==='lobby') {
+      renderHostLobby(data);
+    }
+    // se ongoing
+    else if (data.status==='ongoing') {
       hostLobby.classList.add('hidden');
       hostGame.classList.remove('hidden');
       renderHostGame(data);
-    } else if (data.status === 'finished') {
-      alert("Partida Encerrada!");
-      // Pode exibir algo final
     }
-  });
-}
-
-function showHostLobby() {
-  hostStep1.classList.add('hidden');
-  hostLobby.classList.remove('hidden');
-}
-
-function generateQRCode(code) {
-  qrCodeContainer.innerHTML = '';
-  new QRCode(qrCodeContainer, {
-    text: location.origin + location.pathname + '?gameId=' + code,
-    width: 180,
-    height: 180
+    else if (data.status==='finished') {
+      alert("Partida Encerrada!");
+    }
   });
 }
 
 function renderHostLobby(data) {
   const playersObj = data.players || {};
-  const playerKeys = Object.keys(playersObj);
-  let html = playerKeys.map(k => {
-    const p = playersObj[k];
-    const photo = p.photoURL ? `<img src="${p.photoURL}" class="player-photo" />` : '';
-    return `<div>${photo} ${p.name}</div>`;
+  const arr = Object.values(playersObj);
+  hostPlayersList.innerHTML = arr.map(p => {
+    const pic = p.photoURL ? `<img src="${p.photoURL}" class="player-photo" />` : '';
+    return `<div>${pic} ${p.name}</div>`;
   }).join('');
-  hostPlayersList.innerHTML = html;
 }
 
 function startGameHost() {
-  db.ref(`games/${gameCode}`).update({ status: 'ongoing' });
+  db.ref(`games/${gameCode}`).update({ status:'ongoing' });
 }
 
 function renderHostGame(data) {
   // deck
-  deckCount.textContent = `Cartas Restantes: ${data.deck ? data.deck.length : 0}`;
-  deckSmallView.innerHTML = (data.deck || []).map(c => `<div class="card-back"></div>`).join('');
-
-  // carta atual
+  deckCount.textContent = `Restantes: ${data.deck ? data.deck.length : 0}`;
+  deckView.innerHTML = (data.deck||[]).map(() => `<div class="card-back"></div>`).join('');
+  // currentCard
   if (data.currentCard) {
     currentCardHost.innerHTML = renderCard(data.currentCard.rank, data.currentCard.suit);
   } else {
-    currentCardHost.textContent = 'Nenhuma carta';
+    currentCardHost.textContent = "Nenhuma";
   }
-
-  // Regras
-  if (data.rules && data.rules.length > 0) {
-    rulesBox.innerHTML = data.rules.map(r => `<div class="rule-item">${r}</div>`).join('');
+  // rules
+  if (data.rules && data.rules.length>0) {
+    hostRules.innerHTML = data.rules.map(r=>`<div class="rule-item">${r}</div>`).join('');
   } else {
-    rulesBox.textContent = 'Nenhuma';
+    hostRules.textContent = 'Nenhuma';
   }
-
-  // Jogadores + status
-  const playersObj = data.players || {};
-  const playerKeys = Object.keys(playersObj);
-  let html = playerKeys.map((k,i) => {
-    const p = playersObj[k];
-    const photo = p.photoURL ? `<img src="${p.photoURL}" class="player-photo" />` : '';
-    const isCurrent = (i === data.currentPlayerIndex) ? ' (Vez)' : '';
-    const coringas = (p.jokers && p.jokers>0) ? ` [Coringas: ${p.jokers}]` : '';
-    return `<div>${photo} <strong>${p.name}</strong>${isCurrent}${coringas}</div>`;
+  // players
+  const playersArr = Object.values(data.players||{});
+  let html = playersArr.map((p,i) => {
+    const pic = p.photoURL ? `<img src="${p.photoURL}" class="player-photo"/>` : '';
+    const isCurrent = (i===data.currentPlayerIndex)?' (Vez)':'';
+    const coringas = p.jokers>0 ? ` [Coringas: ${p.jokers}]`:'';
+    return `<div>${pic} <strong>${p.name}</strong>${isCurrent}${coringas}</div>`;
   }).join('');
   hostPlayersStatus.innerHTML = html;
-
-  // Log
+  // logs
   if (data.logs) {
-    hostLog.innerHTML = data.logs.map(l => `<div>${l}</div>`).join('');
+    hostLog.innerHTML = data.logs.map(l=>`<div>${l}</div>`).join('');
     hostLog.scrollTop = hostLog.scrollHeight;
+  }
+  // chat
+  if (data.chat) {
+    hostChat.innerHTML = data.chat.map(c => `<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
+    hostChat.scrollTop = hostChat.scrollHeight;
   }
 }
 
 async function drawCardHost() {
   const snap = await db.ref(`games/${gameCode}`).once('value');
   const data = snap.val();
-  if (!data.deck || data.deck.length === 0) {
+  if (!data.deck || data.deck.length===0) {
     addLogHost("Baralho acabou!");
     return;
   }
   const card = data.deck[0];
   const newDeck = data.deck.slice(1);
-  // aplica efeito
+  // handle card effect
   handleCardEffect(card, data);
-  // atualiza
   await db.ref(`games/${gameCode}`).update({
     deck: newDeck,
     currentCard: card
@@ -585,120 +620,93 @@ async function drawCardHost() {
 }
 
 function endGameHost() {
-  db.ref(`games/${gameCode}`).update({ status: 'finished' });
-}
-
-async function joinGameAsHost() {
-  // Ex: o host digita o code e "entra"
-  const code = inputGameCodeHost.value.trim();
-  if (!code) return alert("Digite um código!");
-  gameCode = code;
-  const ref = db.ref(`games/${code}`);
-  const snap = await ref.once('value');
-  if (!snap.exists()) {
-    alert("Esse código não existe!");
-    return;
-  }
-  // Redesenha a tela
-  showHostLobby();
-  hostGameCodeSpan.textContent = code;
-  generateQRCode(code);
-  hostLinkInfo.innerHTML = `Link p/ jogadores: ${location.origin + location.pathname}?gameId=${code}`;
-
-  // Começa a ouvir
-  ref.on('value', snapshot => {
-    const data = snapshot.val();
-    if (!data) return;
-    renderHostLobby(data);
-    if (data.status === 'ongoing') {
-      hostLobby.classList.add('hidden');
-      hostGame.classList.remove('hidden');
-      renderHostGame(data);
-    } else if (data.status === 'finished') {
-      alert("Partida Encerrada!");
-    }
-  });
+  db.ref(`games/${gameCode}`).update({ status:'finished' });
 }
 
 function addLogHost(msg) {
   db.ref(`games/${gameCode}/logs`).once('value', snap => {
-    let arr = snap.val() || [];
+    let arr = snap.val()||[];
     arr.push(msg);
     db.ref(`games/${gameCode}/logs`).set(arr);
   });
 }
 
+function sendChatAsHost() {
+  const text = hostChatInput.value.trim();
+  if (!text) return;
+  hostChatInput.value = '';
+  db.ref(`games/${gameCode}/chat`).once('value', snap => {
+    let arr = snap.val()||[];
+    arr.push({from:'HOST', text, ts:Date.now()});
+    db.ref(`games/${gameCode}/chat`).set(arr);
+  });
+}
+
 /*
-  ----------------------------------------------------
-  EFEITO DAS CARTAS (HOST)
-  ----------------------------------------------------
+  =========================================
+  6) MANUSEAR EFEITO DE CARTA
+  =========================================
 */
 function handleCardEffect(card, gameData) {
   let logs = gameData.logs || [];
-  const rank = card.rank;
-  const suit = card.suit;
-  const players = Object.values(gameData.players || {});
+  let deck = gameData.deck || [];
   let currentIndex = gameData.currentPlayerIndex;
   let direction = gameData.direction;
   let rules = gameData.rules || [];
-  const currentPlayerName = players[currentIndex]?.name || '???';
-
-  logs.push(`${currentPlayerName} puxou [${rank}${suit !== 'Coringa'?suit:''}]`);
+  const playersArr = Object.values(gameData.players||{});
+  const currentPlayerName = playersArr[currentIndex]?.name || "???";
+  logs.push(`${currentPlayerName} puxou [${card.rank}${card.suit!=='Coringa'?card.suit:''}]`);
 
   let passTurn = true;
 
-  switch(rank) {
+  switch(card.rank) {
     case '4':
       // Adiciona regra
-      const newRule = prompt("Nova Regra:");
+      const newRule = prompt("Nova regra?");
       if (newRule) {
         rules.push(newRule);
         logs.push(`Regra adicionada: "${newRule}"`);
       }
       break;
     case '6':
-      // Quebra todas as regras
+      // Quebra todas
       rules = [];
-      logs.push("TODAS as regras foram quebradas!");
+      logs.push("Todas as regras foram quebradas!");
       break;
     case '8':
-      // Poder do Dedo -> player que puxou ganha "hasFingerPower"
-      const pKey = Object.keys(gameData.players)[currentIndex];
+      // Poder do Dedo
+      const pKey = Object.keys(gameData.players||{})[currentIndex];
       if (pKey) {
-        db.ref(`games/${gameCode}/players/${pKey}`).update({
-          hasFingerPower: true
-        });
+        db.ref(`games/${gameCode}/players/${pKey}/hasFingerPower`).set(true);
         logs.push(`${currentPlayerName} obteve o Poder do Dedo!`);
       }
       break;
     case '9':
       // inverte
-      direction = direction * -1;
+      direction *= -1;
       logs.push("O sentido foi invertido!");
       break;
     case '10':
-      // pula
       passTurn = false;
       setTimeout(() => {
-        let newIndex = currentIndex + direction;
-        if (newIndex < 0) newIndex = players.length - 1;
-        if (newIndex >= players.length) newIndex = 0;
+        let ni = currentIndex + direction;
+        if (ni<0) ni = playersArr.length-1;
+        if (ni>=playersArr.length) ni=0;
         // pula outro
-        newIndex += direction;
-        if (newIndex < 0) newIndex = players.length - 1;
-        if (newIndex >= players.length) newIndex = 0;
+        ni += direction;
+        if (ni<0) ni = playersArr.length-1;
+        if (ni>=playersArr.length) ni=0;
         db.ref(`games/${gameCode}`).update({
-          currentPlayerIndex: newIndex,
+          currentPlayerIndex: ni,
           direction,
-          logs,
-          rules
+          rules,
+          logs
         });
       }, 500);
       break;
     case 'J':
       logs.push(`${currentPlayerName} bebe 1 dose!`);
-      // podemos mandar "alert" pro jogador
-      sendDrinkAlert(gameData, currentIndex);
+      sendDrinkAlert(currentIndex, gameData);
       break;
     case 'Q':
       logs.push("Todas as mulheres bebem 1 dose!");
@@ -707,32 +715,32 @@ function handleCardEffect(card, gameData) {
       logs.push("Todos os homens bebem 1 dose!");
       break;
     case 'Joker':
-      // +1 coringa pro current
-      const pKeyJoker = Object.keys(gameData.players)[currentIndex];
-      if (pKeyJoker) {
-        const oldJ = players[currentIndex].jokers || 0;
-        db.ref(`games/${gameCode}/players/${pKeyJoker}/jokers`).set(oldJ+1);
-        logs.push(`${currentPlayerName} ganhou 1 coringa!`);
+      // +1 coringa
+      const jkKey = Object.keys(gameData.players||{})[currentIndex];
+      if (jkKey) {
+        const oldVal = playersArr[currentIndex].jokers||0;
+        db.ref(`games/${gameCode}/players/${jkKey}/jokers`).set(oldVal+1);
+        logs.push(`${currentPlayerName} ganhou 1 Coringa!`);
       }
       break;
     default:
-      // A,2,3,5,7 etc
-      // Exemplo: "2" => distribui 2 doses
-      // Vamos só mandar log
+      // A,2,3,5,7 etc. Fica livre
+      // ex: "2" => distribua 2 doses
+      // logs.push("Distribua 2 doses!");
   }
 
-  if (passTurn && rank !== '10') {
-    let newIndex = currentIndex + direction;
-    if (newIndex < 0) newIndex = players.length - 1;
-    if (newIndex >= players.length) newIndex = 0;
+  if (passTurn && card.rank!=='10') {
+    let ni = currentIndex + direction;
+    if (ni<0) ni = playersArr.length-1;
+    if (ni>=playersArr.length) ni=0;
     db.ref(`games/${gameCode}`).update({
-      currentPlayerIndex: newIndex,
+      currentPlayerIndex: ni,
       direction,
       rules,
       logs
     });
   } else {
-    // só atualiza logs e direction e rules
+    // só atualiza logs
     db.ref(`games/${gameCode}`).update({
       direction,
       rules,
@@ -741,82 +749,105 @@ function handleCardEffect(card, gameData) {
   }
 }
 
-function sendDrinkAlert(gameData, playerIndex) {
-  // Podemos setar algo no player
-  const pKey = Object.keys(gameData.players)[playerIndex];
+function sendDrinkAlert(playerIndex, gameData) {
+  const pKey = Object.keys(gameData.players||{})[playerIndex];
   if (!pKey) return;
   db.ref(`games/${gameCode}/players/${pKey}/needsToDrink`).set(Date.now());
 }
 
 /*
-  ----------------------------------------------------
-  MODO JOGADOR
-  ----------------------------------------------------
+  =========================================
+  7) MODO JOGADOR
+  =========================================
 */
-function enterCodePlayer() {
-  const code = inputGameCodePlayer.value.trim();
-  if (!code) return alert("Digite o código da partida!");
-  // Verifica se existe
-  db.ref(`games/${code}`).once('value', snap => {
-    if (!snap.exists()) {
-      alert("Partida não encontrada!");
-      return;
-    }
-    gameCode = code;
-    // Vai pra etapa de registro
-    playerStep1.classList.add('hidden');
-    playerRegister.classList.remove('hidden');
-  });
-}
-
-// Se a pessoa acessa via link "?gameId=123456"
-(function checkUrlForGameId() {
+// Se entrar via link ?gameId=XXXX
+(function checkUrlParam() {
   const params = new URLSearchParams(location.search);
   if (params.has('gameId')) {
     const code = params.get('gameId');
     if (code) {
-      // pular steps e já preencher
-      playerArea.classList.remove('hidden');
       modeSelect.classList.add('hidden');
+      playerArea.classList.remove('hidden');
       inputGameCodePlayer.value = code;
       enterCodePlayer();
     }
   }
 })();
 
-// Foto do jogador
-filePlayerPhoto.addEventListener('change', (e) => {
+function enterCodePlayer() {
+  const code = inputGameCodePlayer.value.trim();
+  if (!code) return alert("Digite código!");
+  db.ref(`games/${code}`).once('value', snap => {
+    if (!snap.exists()) {
+      alert("Partida não encontrada!");
+      return;
+    }
+    gameCode = code;
+    playerStep1.classList.add('hidden');
+    playerRegister.classList.remove('hidden');
+  });
+}
+
+function handleFilePlayerPhoto(e) {
   const file = e.target.files[0];
   if (file) {
     myPhotoFile = file;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = ev => {
       previewPhoto.src = ev.target.result;
       previewPhoto.style.display = 'block';
     };
     reader.readAsDataURL(file);
   }
-});
+}
+
+function openCamera() {
+  cameraOverlay.style.display='flex';
+  navigator.mediaDevices.getUserMedia({video:true})
+    .then(stream => {
+      cameraPreview.srcObject = stream;
+    })
+    .catch(err => {
+      alert("Não foi possível acessar câmera: "+err);
+      closeCamera();
+    });
+}
+
+function closeCamera() {
+  cameraOverlay.style.display='none';
+  if (cameraPreview.srcObject) {
+    cameraPreview.srcObject.getTracks().forEach(t=>t.stop());
+    cameraPreview.srcObject = null;
+  }
+}
+
+function capturePhoto() {
+  if (!cameraPreview.srcObject) return;
+  const track = cameraPreview.srcObject.getVideoTracks()[0];
+  const imageCapture = new ImageCapture(track);
+  imageCapture.takePhoto()
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      previewPhoto.src = url;
+      previewPhoto.style.display = 'block';
+      myPhotoFile = blob; // vamos salvar esse blob p/ upload
+      closeCamera();
+    })
+    .catch(err=> alert("Erro ao capturar foto: "+err));
+}
 
 async function registerPlayerInGame() {
+  if (!gameCode) return alert("Sem código de jogo!");
   const name = inputPlayerName.value.trim();
   if (!name) return alert("Digite seu nome!");
-  if (!gameCode) return alert("Não há gameCode definido!");
-
-  // Faz upload da foto (se tiver)
+  // Se tiver foto
   if (myPhotoFile) {
-    const storageRef = storage.ref(`games/${gameCode}/photos/${Date.now()}_${myPhotoFile.name}`);
+    // upload
+    const storageRef = storage.ref(`games/${gameCode}/photos/${Date.now()}`);
     await storageRef.put(myPhotoFile);
-    myPhotoURL = await storageRef.getDownloadURL();
-  } else if (previewPhoto.src && previewPhoto.style.display !== 'none') {
-    // Caso a foto tenha vindo da câmera (base64)
-    const blob = await dataURLtoBlob(previewPhoto.src);
-    const storageRef = storage.ref(`games/${gameCode}/photos/${Date.now()}.png`);
-    await storageRef.put(blob);
     myPhotoURL = await storageRef.getDownloadURL();
   }
 
-  // Cria player no DB
   const playersRef = db.ref(`games/${gameCode}/players`).push();
   myPlayerKey = playersRef.key;
   await playersRef.set({
@@ -827,263 +858,222 @@ async function registerPlayerInGame() {
   });
 
   playerRegister.classList.add('hidden');
-
-  // Vamos ouvir o jogo
+  // ouvir partida
   db.ref(`games/${gameCode}`).on('value', snap => {
+    if (!snap.exists()) return;
     const data = snap.val();
-    if (!data) return;
     updatePlayerView(data);
   });
 }
 
 function updatePlayerView(gameData) {
-  // Se status = lobby, mostra playerLobby
-  if (gameData.status === 'lobby') {
+  if (gameData.status==='lobby') {
     playerLobby.classList.remove('hidden');
     playerGame.classList.add('hidden');
-    // mostrar lista
-    const plist = Object.values(gameData.players||{});
-    playerLobbyList.innerHTML = plist.map(p => {
-      const pic = p.photoURL ? `<img src="${p.photoURL}" class="player-photo" />` : '';
+    // listar
+    const arr = Object.values(gameData.players||{});
+    playerLobbyList.innerHTML = arr.map(p=>{
+      const pic = p.photoURL ? `<img src="${p.photoURL}" class="player-photo" />`:'';
       return `<div>${pic} ${p.name}</div>`;
     }).join('');
-  }
-  else if (gameData.status === 'ongoing') {
+  } 
+  else if (gameData.status==='ongoing') {
     playerLobby.classList.add('hidden');
     playerGame.classList.remove('hidden');
-
-    // Info
-    const pObj = gameData.players?.[myPlayerKey];
+    // exibir info
+    const pObj = gameData.players[myPlayerKey];
     if (!pObj) {
-      playerInfo.textContent = "Você não está neste jogo?";
+      playerInfo.textContent = "Você não está no jogo?";
       return;
     } else {
       playerInfo.textContent = `Olá, ${pObj.name} | Coringas: ${pObj.jokers||0}`;
     }
-
-    // current card
+    // carta
     if (gameData.currentCard) {
       currentCardPlayer.innerHTML = renderCard(gameData.currentCard.rank, gameData.currentCard.suit);
     } else {
-      currentCardPlayer.textContent = 'Nenhuma carta';
+      currentCardPlayer.textContent = "Nenhuma";
     }
-
-    // Regras
-    if (gameData.rules && gameData.rules.length > 0) {
-      playerRules.innerHTML = gameData.rules.map(r => `<div class="rule-item">${r}</div>`).join('');
+    // regras
+    if (gameData.rules && gameData.rules.length>0) {
+      playerRules.innerHTML = gameData.rules.map(r=>`<div class="rule-item">${r}</div>`).join('');
     } else {
-      playerRules.innerHTML = '<p>Nenhuma</p>';
+      playerRules.innerHTML = 'Nenhuma';
     }
-
-    // Se player tem coringa
-    btnUseJoker.style.display = (pObj.jokers>0) ? 'inline-block' : 'none';
-    // Se tem finger power
-    btnActivateFinger.style.display = pObj.hasFingerPower ? 'inline-block' : 'none';
-
-    // Finger Power global
-    const fp = gameData.fingerPower || {};
+    // coringa
+    btnUseJoker.style.display = (pObj.jokers>0) ? 'inline-block':'none';
+    // poder do dedo
+    btnActivateFinger.style.display = pObj.hasFingerPower ? 'inline-block':'none';
+    // fingerPower global
+    const fp = gameData.fingerPower||{};
     if (fp.active) {
       fingerBox.classList.remove('hidden');
-      // Se eu já cliquei
-      const clicked = (fp.queue || []).find(x => x.playerKey === myPlayerKey);
-      if (clicked) {
+      // se já cliquei
+      const found = (fp.queue||[]).find(x=>x.playerKey===myPlayerKey);
+      if (found) {
         btnFingerClick.disabled = true;
-        btnFingerClick.textContent = "Você já clicou!";
+        btnFingerClick.textContent="Você já clicou!";
       } else {
         btnFingerClick.disabled = false;
-        btnFingerClick.textContent = "Clique Rápido!";
+        btnFingerClick.textContent="Clique Rápido!";
       }
-      // Mostrar ordem
-      fingerQueue.innerHTML = (fp.queue||[]).map((q,i) => `${i+1}º: ${q.name}`).join('<br>');
+      fingerQueue.innerHTML = (fp.queue||[]).map((q,i)=>`${i+1}º: ${q.name}`).join('<br>');
     } else {
       fingerBox.classList.add('hidden');
     }
-
-    // Log
+    // logs
     if (gameData.logs) {
-      playerLog.innerHTML = gameData.logs.map(l => `<div>${l}</div>`).join('');
+      playerLog.innerHTML = gameData.logs.map(l=>`<div>${l}</div>`).join('');
       playerLog.scrollTop = playerLog.scrollHeight;
     }
-
-    // Se needsToDrink for mim
+    // chat
+    if (gameData.chat) {
+      playerChat.innerHTML = gameData.chat.map(c => `<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
+      playerChat.scrollTop = playerChat.scrollHeight;
+    }
+    // needsToDrink?
     if (pObj.needsToDrink) {
-      // Ex: se a gente setar esse valor com um timestamp
       alert("Você precisa beber!");
-      // reseta
       db.ref(`games/${gameCode}/players/${myPlayerKey}/needsToDrink`).remove();
     }
-  }
-  else if (gameData.status === 'finished') {
+  } 
+  else if (gameData.status==='finished') {
     alert("Partida Encerrada!");
   }
 }
 
-// Usar Coringa
+/*
+  =========================================
+  8) JOGADOR - CORINGA, PODER DO DEDO, ETC.
+  =========================================
+*/
 function useJokerPlayer() {
+  if (!myPlayerKey) return;
   db.ref(`games/${gameCode}/players/${myPlayerKey}`).once('value', snap => {
     const p = snap.val();
     if (!p) return;
-    if (p.jokers <= 0) return alert("Você não tem coringa.");
-    const newVal = p.jokers - 1;
-    db.ref(`games/${gameCode}/players/${myPlayerKey}/jokers`).set(newVal);
-    addLog(`Usou um Coringa para não beber!`);
+    if (p.jokers>0) {
+      db.ref(`games/${gameCode}/players/${myPlayerKey}/jokers`).set(p.jokers-1);
+      addLog(`Usou 1 Coringa para não beber!`);
+    }
   });
 }
 
-// Ativar Poder do Dedo
 function activateFingerPower() {
-  // Marca fingerPower ativo
-  // E add queue com esse player
+  if (!myPlayerKey) return;
   db.ref(`games/${gameCode}/fingerPower`).set({
     active: true,
     owner: myPlayerKey,
     queue: [{ playerKey: myPlayerKey, name: inputPlayerName.value.trim() }]
   });
-  // remove hasFingerPower
   db.ref(`games/${gameCode}/players/${myPlayerKey}/hasFingerPower`).set(false);
   addLog(`${inputPlayerName.value} ativou o Poder do Dedo!`);
 }
 
 function fingerClick() {
   db.ref(`games/${gameCode}/fingerPower/queue`).once('value', snap => {
-    let queue = snap.val() || [];
-    // se já tô, sai
-    if (queue.find(x => x.playerKey === myPlayerKey)) return;
-    queue.push({ playerKey: myPlayerKey, name: inputPlayerName.value.trim() });
-    db.ref(`games/${gameCode}/fingerPower/queue`).set(queue);
-
-    // Se quiser encerrar automaticamente em X seg, pode ser no host
-    // ou assim que todo mundo tiver clicado.
+    let arr = snap.val()||[];
+    if (arr.find(x=>x.playerKey===myPlayerKey)) return;
+    arr.push({ playerKey: myPlayerKey, name: inputPlayerName.value.trim()});
+    db.ref(`games/${gameCode}/fingerPower/queue`).set(arr);
   });
 }
 
-// Podemos chamar do Host (ou timer) a função que decide o último:
+// Exemplo de "finalizar finger power" - poderia rodar no Host com timer
 function finalizeFingerPower() {
   db.ref(`games/${gameCode}/fingerPower`).once('value', snap => {
     const fp = snap.val();
-    if (!fp || !fp.queue || fp.queue.length===0) return;
+    if (!fp || !fp.queue||fp.queue.length===0) return;
     const last = fp.queue[fp.queue.length-1];
-    // mandar esse last beber
     addLog(`O último a clicar foi ${last.name}, então ele bebe!`);
+    // mandar esse player beber
     db.ref(`games/${gameCode}/players/${last.playerKey}/needsToDrink`).set(Date.now());
     // desativa
-    db.ref(`games/${gameCode}/fingerPower`).update({ active: false, queue: [] });
+    db.ref(`games/${gameCode}/fingerPower`).update({ active:false, queue:[]});
   });
 }
 
 /*
-  ----------------------------------------------------
-  VIDEO GRAVAÇÃO (PLAYER)
-  ----------------------------------------------------
+  =========================================
+  9) GRAVAÇÃO DE VÍDEO (PLAYER)
+  =========================================
 */
-function closeVideoOverlay() {
-  videoOverlay.classList.add('hidden');
-  stopVideoStream();
-}
 async function startVideoRecording() {
-  if (!localStream) {
+  if (!localCameraStream) {
     try {
-      localStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
-      videoPreview.srcObject = localStream;
+      localCameraStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+      videoPreview.srcObject = localCameraStream;
     } catch(err) {
-      alert("Não foi possível acessar câmera: " + err);
+      alert("Não foi possível câmera: "+err);
       return;
     }
   }
-  recordedChunks = [];
-  mediaRecorder = new MediaRecorder(localStream);
-  mediaRecorder.ondataavailable = e => {
+  recordedChunks=[];
+  mediaRecorder = new MediaRecorder(localCameraStream);
+  mediaRecorder.ondataavailable = e=> {
     if (e.data.size>0) recordedChunks.push(e.data);
   };
-  mediaRecorder.onstop = async () => {
+  mediaRecorder.onstop = async ()=>{
     if (recordedChunks.length>0) {
-      const blob = new Blob(recordedChunks, { type:'video/mp4' });
-      // faz upload
-      const storageRef = storage.ref(`games/${gameCode}/videos/${Date.now()}.mp4`);
-      await storageRef.put(blob);
-      const videoURL = await storageRef.getDownloadURL();
-      addLog(`Gravou vídeo! URL: ${videoURL}`);
-      // se quiser registrar no DB
-      db.ref(`games/${gameCode}/videos`).once('value', s => {
-        let arr = s.val() || [];
-        arr.push({ playerKey: myPlayerKey, url: videoURL });
-        db.ref(`games/${gameCode}/videos`).set(arr);
-      });
+      const blob = new Blob(recordedChunks, {type:'video/mp4'});
+      // upload
+      const ref = storage.ref(`games/${gameCode}/videos/${Date.now()}.mp4`);
+      await ref.put(blob);
+      const url = await ref.getDownloadURL();
+      addLog(`Gravou Vídeo! URL: ${url}`);
     }
   };
   mediaRecorder.start();
-  addLog("Iniciou Gravação...");
+  addLog("Iniciou gravação...");
 }
+
 function stopVideoRecording() {
   if (mediaRecorder && mediaRecorder.state==='recording') {
     mediaRecorder.stop();
-    addLog("Parou Gravação.");
+    addLog("Parou gravação.");
   }
 }
+
+function closeVideoOverlay() {
+  videoOverlay.style.display='none';
+  stopVideoStream();
+}
+
 function stopVideoStream() {
-  if (localStream) {
-    localStream.getTracks().forEach(t => t.stop());
+  if (localCameraStream) {
+    localCameraStream.getTracks().forEach(t=>t.stop());
+    localCameraStream=null;
   }
-  localStream = null;
   videoPreview.srcObject = null;
 }
 
 /*
-  ----------------------------------------------------
-  FOTO - CÂMERA
-  ----------------------------------------------------
+  =========================================
+  10) CHAT (PLAYER)
+  =========================================
 */
-async function openCameraOverlay() {
-  cameraOverlay.classList.remove('hidden');
-  try {
-    const camStream = await navigator.mediaDevices.getUserMedia({ video: true });
-    cameraPreview.srcObject = camStream;
-  } catch (err) {
-    alert("Não foi possível abrir câmera: " + err);
-    closeCameraOverlay();
-  }
-}
-function closeCameraOverlay() {
-  cameraOverlay.classList.add('hidden');
-  if (cameraPreview.srcObject) {
-    cameraPreview.srcObject.getTracks().forEach(t => t.stop());
-    cameraPreview.srcObject = null;
-  }
-}
-function capturePhoto() {
-  if (!cameraPreview.srcObject) return;
-  const videoTrack = cameraPreview.srcObject.getVideoTracks()[0];
-  const capture = new ImageCapture(videoTrack);
-  capture.takePhoto()
-    .then(blob => {
-      const url = URL.createObjectURL(blob);
-      previewPhoto.src = url;
-      previewPhoto.style.display = 'block';
-      myPhotoFile = null; // limpamos pois é a camera que manda
-      closeCameraOverlay();
-    })
-    .catch(err => {
-      alert("Falha ao capturar foto: "+err);
-    });
-}
-
-/*
-  ----------------------------------------------------
-  UTILS
-  ----------------------------------------------------
-*/
-// Adiciona log no array logs do game
-function addLog(msg) {
-  db.ref(`games/${gameCode}/logs`).once('value', snap => {
-    let arr = snap.val() || [];
-    arr.push(`${inputPlayerName.value}: ${msg}`);
-    db.ref(`games/${gameCode}/logs`).set(arr);
+function sendChatAsPlayer() {
+  const text = playerChatInput.value.trim();
+  if (!text) return;
+  playerChatInput.value='';
+  db.ref(`games/${gameCode}/chat`).once('value', snap => {
+    let arr = snap.val()||[];
+    arr.push({from: inputPlayerName.value.trim(), text, ts: Date.now()});
+    db.ref(`games/${gameCode}/chat`).set(arr);
   });
 }
 
-// Converter base64 -> Blob
-function dataURLtoBlob(dataurl) {
-  return fetch(dataurl).then(res => res.blob());
+/*
+  =========================================
+  11) LOG HELPER
+  =========================================
+*/
+function addLog(msg) {
+  db.ref(`games/${gameCode}/logs`).once('value', snap => {
+    let arr = snap.val()||[];
+    arr.push(msg);
+    db.ref(`games/${gameCode}/logs`).set(arr);
+  });
 }
 </script>
 </body>
