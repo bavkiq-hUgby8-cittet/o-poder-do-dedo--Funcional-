@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>O Poder do Dedo - HOST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Firebase compat (Realtime Database) -->
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-database-compat.js"></script>
+
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      background: #000; /* fundo escuro */
+      color: #fff;
+      font-family: Arial, sans-serif;
+      height: 100vh; 
+      overflow: hidden; /* pra evitar scroll */
+    }
+    #mainContainer {
+      /* Espaço 16:9 centralizado */
+      width: 100%;
+      height: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      aspect-ratio: 16 / 9;
+      background-color: #222;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    #contentScroll {
+      flex: 1;
+      overflow: auto;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    h1, h2, h3 { text-align: center; }
+    button {
+      padding: 10px 16px;
+      background-color: #444;
+      color: #fff;
+      border: 1px solid #666;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .top-section {
+      display: flex;
+      justify-content: space-evenly;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .players-box, .card-box {
+      border: 1px solid #666;
+      padding: 10px;
+      border-radius: 5px;
+      background: #333;
+      min-width: 250px;
+    }
+    #playersList ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #playersList li {
+      margin: 4px 0;
+    }
+    .deck-small {
+      position: absolute;
+      top: 10px; right: 10px;
+      font-size: 0.8rem;
+      text-align: center;
+      background: #444;
+      border: 1px solid #666;
+      border-radius: 5px;
+      padding: 5px;
+    }
+    .deck-small .card-back {
+      width: 25px; 
+      height: 35px;
+      background-color: #999;
+      display: inline-block;
+      border-radius: 3px;
+      margin: 2px;
+    }
+    /* Carta principal maior */
+    .card-front {
+      width: 120px;
+      height: 170px;
+      border-radius: 8px;
+      background: #fff;
+      position: relative;
+      margin: 0 auto;
+      color: #000;
+      border: 2px solid #000;
+    }
+    .card-rank-suit {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+    .red { color: red; }
+    .black { color: black; }
+    /* Regras empilhadas */
+    #rulesContainer {
+      margin: 10px 0;
+      background: #444;
+      border: 1px solid #666;
+      border-radius: 5px;
+      padding: 8px;
+    }
+    .rule-item {
+      background: #555;
+      margin: 4px 0;
+      padding: 4px;
+      border-radius: 3px;
+    }
+    /* Log */
+    #log {
+      max-height: 150px;
+      overflow-y: auto;
+      background: #111;
+      border: 1px solid #666;
+      padding: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div id="mainContainer">
+  <div id="contentScroll">
+    <h1>O Poder do Dedo - HOST</h1>
+
+    <div id="setupArea">
+      <h3>Criar nova partida</h3>
+      <button id="btnCreateGame">Criar Partida</button>
+      <p style="margin-top:10px;font-size:0.9rem;">
+        Depois de criar, você obtém um <strong>gameId</strong> ou QR Code para os jogadores entrarem em <code>player.html</code>.
+      </p>
+      <div id="gameLink" style="margin-top:10px;"></div>
+    </div>
+
+    <div id="gameArea" style="display:none;">
+      <div class="deck-small" id="deckSmallBox">
+        <div id="deckSmallCount">Deck(0)</div>
+        <div id="deckSmallCards"></div>
+      </div>
+
+      <div class="top-section">
+        <div class="players-box">
+          <h2>Jogadores</h2>
+          <div id="playersList"></div>
+          <button id="btnEndGame">Encerrar Partida</button>
+        </div>
+        <div class="card-box">
+          <h2>Carta Atual</h2>
+          <div id="currentCard">Nenhuma carta ainda...</div>
+          <div id="rulesContainer"></div>
+          <button id="btnDrawCard">Puxar Carta</button>
+        </div>
+      </div>
+
+      <h3>Histórico</h3>
+      <div id="log"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * CONFIG FIREBASE
+ * (Compat version para Realtime Database)
+ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBQ5czr0wUqNxyqU9X_WHO3DrHOYEAPf7M",
+  authDomain: "opoderdodedo.firebaseapp.com",
+  databaseURL: "https://opoderdodedo-default-rtdb.firebaseio.com",
+  projectId: "opoderdodedo",
+  storageBucket: "opoderdodedo.firebasestorage.app",
+  messagingSenderId: "931089125837",
+  appId: "1:931089125837:web:fa22ae36bd206f28cf7484",
+  measurementId: "G-6YE1KQ0VQC"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ------------------------------------------------
+// Referências de elementos
+// ------------------------------------------------
+const setupArea = document.getElementById('setupArea');
+const gameArea = document.getElementById('gameArea');
+const btnCreateGame = document.getElementById('btnCreateGame');
+const btnDrawCard = document.getElementById('btnDrawCard');
+const btnEndGame = document.getElementById('btnEndGame');
+const gameLinkDiv = document.getElementById('gameLink');
+const playersListDiv = document.getElementById('playersList');
+const logDiv = document.getElementById('log');
+const currentCardDiv = document.getElementById('currentCard');
+const rulesContainer = document.getElementById('rulesContainer');
+
+const deckSmallBox = document.getElementById('deckSmallBox');
+const deckSmallCount = document.getElementById('deckSmallCount');
+const deckSmallCards = document.getElementById('deckSmallCards');
+
+let gameId = null;
+let gameRef = null; // referência na RTDB
+let unsubscribe = null;
+
+// ------------------------------------------------
+// EVENTOS
+// ------------------------------------------------
+btnCreateGame.addEventListener('click', createNewGame);
+btnDrawCard.addEventListener('click', drawCard);
+btnEndGame.addEventListener('click', endGame);
+
+// ------------------------------------------------
+// CRIA NOVA PARTIDA
+// ------------------------------------------------
+async function createNewGame() {
+  // gera um ID aleatório (pode usar push() ou um custom ID)
+  const newRef = db.ref('games').push();
+  gameId = newRef.key;
+
+  // cria o deck embaralhado
+  const deck = generateDeck();
+
+  // dados iniciais do jogo
+  const initialData = {
+    status: 'lobby',
+    players: {}, // usando objeto, cada player com key
+    deck: deck,
+    currentCard: null,
+    currentPlayerIndex: 0,
+    direction: 1,
+    rules: [], // array de regras ativas
+    logs: [],
+    fingerPower: {
+      // Se alguém tiver a carta 8, quando ativar:
+      active: false, // indica se o poder está rolando
+      owner: null,   // quem acionou
+      queue: []      // ordem de quem clicou no dedo
+    }
+  };
+
+  await newRef.set(initialData);
+  gameRef = newRef; // guarda ref global
+
+  // exibe link e troca pra tela do jogo
+  setupArea.style.display = 'none';
+  gameArea.style.display = 'block';
+
+  const link = `${location.origin}${location.pathname.replace('host.html','player.html')}?gameId=${gameId}`;
+  gameLinkDiv.innerHTML = `
+    <p><strong>Game ID:</strong> ${gameId}</p>
+    <p>Link p/ jogadores: <a href="${link}" target="_blank">${link}</a></p>
+    <p>(Use QR Code se quiser, apontando para esse link)</p>
+  `;
+
+  // começa a ouvir mudanças no jogo
+  subscribeToGame(gameId);
+}
+
+// ------------------------------------------------
+// "Assina" o game em tempo real
+// ------------------------------------------------
+function subscribeToGame(gameId) {
+  const ref = db.ref(`games/${gameId}`);
+  ref.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (!data) return;
+
+    renderGameState(data);
+  });
+}
+
+// ------------------------------------------------
+// Renderiza estado do jogo na tela do Host
+// ------------------------------------------------
+function renderGameState(data) {
+  // 1) Jogadores
+  const players = data.players ? Object.values(data.players) : [];
+  // ordenar por "joinOrder" ou algo assim, se quiser
+  playersListDiv.innerHTML = '<ul>' + players.map((p, idx) => {
+    let coringaInfo = (p.jokers > 0) ? ` (Coringas: ${p.jokers})` : '';
+    let isCurrent = (idx === data.currentPlayerIndex) ? ' <strong>(Vez)</strong>' : '';
+    // Se tiver a carta 8, poderia exibir algo
+    return `<li>${p.name}${isCurrent}${coringaInfo}</li>`;
+  }).join('') + '</ul>';
+
+  // 2) Log
+  if (data.logs) {
+    logDiv.innerHTML = data.logs.map(l => `<div>${l}</div>`).join('');
+    logDiv.scrollTop = logDiv.scrollHeight;
+  }
+
+  // 3) Carta Atual
+  if (data.currentCard) {
+    const c = data.currentCard;
+    currentCardDiv.innerHTML = renderCardFront(c.rank, c.suit);
+  } else {
+    currentCardDiv.innerHTML = 'Nenhuma carta ainda...';
+  }
+
+  // 4) Deck pequeno
+  const deckArr = data.deck || [];
+  deckSmallCount.textContent = `Deck(${deckArr.length})`;
+  deckSmallCards.innerHTML = deckArr.map(() => `<div class="card-back"></div>`).join('');
+
+  // 5) Regras
+  const rules = data.rules || [];
+  if (rules.length === 0) {
+    rulesContainer.innerHTML = '<p>Nenhuma Regra Ativa</p>';
+  } else {
+    rulesContainer.innerHTML = '<h4>Regras Ativas</h4>' + rules.map(r => {
+      return `<div class="rule-item">${r}</div>`;
+    }).join('');
+  }
+
+  // 6) Se o jogo estiver finalizado
+  if (data.status === 'finished') {
+    alert('Partida Encerrada!');
+    // Pode exibir tela final...
+  }
+}
+
+// ------------------------------------------------
+// PUXAR CARTA
+// ------------------------------------------------
+async function drawCard() {
+  const snap = await gameRef.once('value');
+  const gameData = snap.val();
+  if (!gameData.deck || gameData.deck.length === 0) {
+    addLog("Baralho acabou!");
+    return;
+  }
+  // Pegar primeira carta
+  const card = gameData.deck[0];
+  const newDeck = gameData.deck.slice(1);
+
+  // Aplica efeito da carta
+  handleCardEffect(card, gameData);
+
+  // Atualiza no DB
+  await gameRef.update({
+    deck: newDeck,
+    currentCard: card
+  });
+}
+
+// ------------------------------------------------
+// LÓGICA DE EFEITO DA CARTA
+// (Simplificado, mas adaptado pro conceito multi-regra etc.)
+// ------------------------------------------------
+function handleCardEffect(card, gameData) {
+  const rank = card.rank;
+  const suit = card.suit;
+  const playersArr = Object.values(gameData.players || {});
+  let logs = gameData.logs || [];
+  let currentIndex = gameData.currentPlayerIndex;
+  let direction = gameData.direction;
+  let rules = gameData.rules || [];
+
+  const currentPlayerName = playersArr[currentIndex]?.name || '???';
+
+  logs.push(`${currentPlayerName} puxou [${rank}${suit !== 'Coringa' ? suit : ''}]`);
+
+  let passTurn = true; // se false, não avança
+
+  switch(rank) {
+    case 'A':
+      logs.push("Escolha 1 dose para alguém!");
+      break;
+    case '2':
+      logs.push("Escolha 2 doses para distribuir!");
+      break;
+    case '3':
+      logs.push("Escolha 3 doses para distribuir!");
+      break;
+    case '4':
+      // ADICIONA uma nova regra sem remover as antigas
+      const newRule = prompt("Invente a nova regra (ex: beber sem usar as mãos, etc.)");
+      if (newRule) {
+        rules.push(newRule);
+        logs.push(`Nova Regra: "${newRule}" adicionada!`);
+      }
+      break;
+    case '5':
+      // Se quiser outro efeito pra 5, adicione
+      break;
+    case '6':
+      // 6 "Quebra Regra" - remove TODAS as regras
+      rules = [];
+      logs.push("Todas as regras foram quebradas!");
+      break;
+    case '7':
+      logs.push("Eu nunca... quem já fez, bebe!");
+      break;
+    case '8':
+      // Poder do dedo - a gente marca no DB qual jogador tá com a carta
+      // Jogador vai poder clicar no "player.html"
+      // (Aqui só registramos que ele ganhou fingerPower)
+      const pKey = Object.keys(gameData.players || {})[currentIndex]; 
+      if (pKey) {
+        db.ref(`games/${gameId}/players/${pKey}`).update({
+          hasFingerPower: true
+        });
+        logs.push(`${currentPlayerName} obteve o Poder do Dedo!`);
+      }
+      break;
+    case '9':
+      // inverte sentido
+      direction = direction * -1;
+      logs.push("O sentido do jogo foi invertido!");
+      break;
+    case '10':
+      // Pula próximo jogador
+      passTurn = false;
+      setTimeout(() => {
+        // 1) Avança pro próximo
+        let newIndex = currentIndex + direction;
+        if (newIndex < 0) newIndex = playersArr.length - 1;
+        if (newIndex >= playersArr.length) newIndex = 0;
+
+        // 2) Pula mais um
+        newIndex = newIndex + direction;
+        if (newIndex < 0) newIndex = playersArr.length - 1;
+        if (newIndex >= playersArr.length) newIndex = 0;
+
+        db.ref(`games/${gameId}`).update({
+          currentPlayerIndex: newIndex,
+          direction,
+          logs
+        });
+      }, 500);
+      break;
+    case 'J':
+      logs.push(`${currentPlayerName} bebe 1 dose!`);
+      sendDoseReminder(playersArr[currentIndex]);
+      break;
+    case 'Q':
+      logs.push("Todas as mulheres bebem 1 dose!");
+      break;
+    case 'K':
+      logs.push("Todos os homens bebem 1 dose!");
+      break;
+    case 'Joker':
+      // coringa
+      // jogador ganha +1 coringa
+      const cKey = Object.keys(gameData.players || {})[currentIndex];
+      if (cKey) {
+        const oldJokers = playersArr[currentIndex].jokers || 0;
+        db.ref(`games/${gameId}/players/${cKey}/jokers`).set(oldJokers + 1);
+        logs.push(`${currentPlayerName} ganhou 1 Coringa de Defesa!`);
+      }
+      break;
+    default:
+      logs.push("Carta desconhecida...");
+  }
+
+  // Se for um card normal e passTurn = true, avança para o próximo jogador
+  if (passTurn && rank !== '10') {
+    let newIndex = currentIndex + direction;
+    if (newIndex < 0) newIndex = playersArr.length - 1;
+    if (newIndex >= playersArr.length) newIndex = 0;
+    db.ref(`games/${gameId}`).update({
+      currentPlayerIndex: newIndex,
+      direction,
+      rules,
+      logs
+    });
+  } else {
+    // se não, só atualiza logs/direction/rules
+    db.ref(`games/${gameId}`).update({
+      direction,
+      rules,
+      logs
+    });
+  }
+}
+
+// ------------------------------------------------
+// Função para gerar baralho
+// ------------------------------------------------
+function generateDeck() {
+  const suits = ["♥","♦","♣","♠"];
+  const ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+  let newDeck = [];
+  suits.forEach(suit => {
+    ranks.forEach(rank => {
+      newDeck.push({ rank, suit });
+    });
+  });
+  // 3 coringas
+  for (let i=0; i<3; i++){
+    newDeck.push({ rank: "Joker", suit: "Coringa" });
+  }
+  // embaralha
+  for (let i = newDeck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newDeck[i], newDeck[j]] = [newDeck[j], newDeck[i]];
+  }
+  return newDeck;
+}
+
+// ------------------------------------------------
+// Encerrar partida
+// ------------------------------------------------
+async function endGame() {
+  if (!gameRef) return;
+  await gameRef.update({ status: 'finished' });
+  alert("Partida Encerrada!");
+}
+
+// ------------------------------------------------
+// Logging
+// ------------------------------------------------
+function addLog(msg) {
+  gameRef.child('logs').once('value', snap => {
+    let arr = snap.val() || [];
+    arr.push(msg);
+    gameRef.update({ logs: arr });
+  });
+}
+
+// ------------------------------------------------
+// Render carta (simples)
+function renderCardFront(rank, suit) {
+  if (rank === 'Joker') {
+    return `
+      <div class="card-front" style="background:#ffd700;color:#000;">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);font-size:1.4rem;">
+          CORINGA
+        </div>
+      </div>
+    `;
+  }
+  const isRed = (suit === '♥' || suit === '♦');
+  const colorClass = isRed ? 'red' : 'black';
+  return `
+    <div class="card-front">
+      <div class="card-rank-suit ${colorClass}">
+        ${rank}${suit}
+      </div>
+    </div>
+  `;
+}
+
+// ------------------------------------------------
+// Mandar "lembrete" de dose pro jogador (simples)
+function sendDoseReminder(player) {
+  if (!player || !player.idKey) return; 
+  // Nesse exemplo, a gente só guarda no DB algo do tipo "needsToDrink"
+  // pro front do jogador exibir. Mas vamos simplificar com logs.
+}
+</script>
+</body>
+</html>
