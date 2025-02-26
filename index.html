@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>O Poder do Dedo - Versão Final (sem Trancar)</title>
+  <title>O Poder do Dedo - Responsivo Final</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Firebase (compat) - App, Database, Storage -->
@@ -14,14 +14,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
-    /* Layout claro e responsivo */
+    /* Reset e layout básico */
     * {
       margin: 0; padding: 0;
       box-sizing: border-box;
     }
     body {
       font-family: Arial, sans-serif;
-      background: #fafafa; 
+      background: #fafafa;
       color: #333;
       min-height: 100vh;
       display: flex;
@@ -45,97 +45,93 @@
     button:hover {
       opacity: 0.9;
     }
-    /* Botões coloridos no estilo "Bootstrap-like" */
+    /* Botões coloridos */
     .btn-dark {
-      background: #555; 
-      color: #fff;
+      background: #555; color: #fff;
     }
     .btn-primary {
-      background: #007BFF; 
-      color: #fff;
+      background: #007BFF; color: #fff;
     }
     .btn-success {
-      background: #28a745;
-      color: #fff;
+      background: #28a745; color: #fff;
     }
     .btn-danger {
-      background: #dc3545;
-      color: #fff;
+      background: #dc3545; color: #fff;
     }
     .btn-warning {
-      background: #ffc107;
-      color: #212529;
+      background: #ffc107; color: #212529;
     }
     .btn-info {
-      background: #17a2b8;
-      color: #fff;
+      background: #17a2b8; color: #fff;
     }
 
+    /* Container principal */
     .container {
       width: 95%;
-      max-width: 600px;
+      max-width: 1200px;  /* Maior para desktop */
       background: #fff;
       border: 1px solid #ddd;
       border-radius: 8px;
       padding: 15px;
       margin-top: 20px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
     .hidden { display: none !important; }
-    .row {
-      display: flex; 
-      gap: 10px;
+
+    /* Flex para agrupar seções. No desktop ficam lado a lado; no mobile empilha */
+    .flex-row {
+      display: flex;
       flex-wrap: wrap;
+      gap: 20px;
+      justify-content: space-between;
+    }
+    .flex-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    /* Fotos, cartas, deck */
-    .player-photo {
-      width: 40px; 
-      height: 40px; 
-      object-fit: cover; 
-      border-radius: 50%;
-      vertical-align: middle;
-      margin-right: 5px;
+    /* Seção do baralho e carta */
+    .section-cards {
+      flex: 1;
+      min-width: 280px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
     }
-    .card-front {
-      width: 100px;
-      height: 150px;
-      background: #fff;
-      position: relative;
-      color: #000;
-      border: 2px solid #000;
-      border-radius: 6px;
-      margin: 5px 0;
-    }
-    .card-rank-suit {
-      position: absolute;
-      top: 8px; left: 8px;
-      font-size: 1.4rem;
-      font-weight: bold;
-    }
-    .red { color: red; }
-    .black { color: #000; }
-    .card-back {
-      width: 15px; 
-      height: 25px; 
-      background: #bbb;
-      border-radius: 3px;
-      display: inline-block;
-      margin: 2px;
+    .section-deck {
+      width: 160px;
+      min-width: 160px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
     }
 
-    /* Painéis e Chat */
+    /* Regras e jogadores */
+    .section-rules, .section-players {
+      flex: 1;
+      min-width: 280px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+    }
+
+    /* Painel e chat */
     .painel, .chat-box {
       background: #f9f9f9;
       border: 1px solid #ccc;
       border-radius: 4px;
-      max-height: 150px;
+      max-height: 200px;
       overflow-y: auto;
       padding: 8px;
       margin-top: 10px;
       font-size: 0.9rem;
       color: #333;
     }
+
     .rules-list {
       background: #f9f9f9;
       border: 1px solid #ccc;
@@ -157,6 +153,7 @@
       margin: 10px 0;
       border-radius: 5px;
     }
+
     .status-panel {
       background: #e7f3ff;
       border: 1px solid #bee0ff;
@@ -167,11 +164,51 @@
       font-weight: bold;
       color: #007BFF;
     }
+
+    /* Cartas */
+    .card-front {
+      width: 100px;
+      height: 150px;
+      background: #fff;
+      position: relative;
+      color: #000;
+      border: 2px solid #000;
+      border-radius: 6px;
+      margin: 5px auto;
+    }
+    .card-rank-suit {
+      position: absolute;
+      top: 8px; left: 8px;
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+    .red { color: red; }
+    .black { color: #000; }
+    .card-back {
+      width: 15px; 
+      height: 25px; 
+      background: #bbb;
+      border-radius: 3px;
+      display: inline-block;
+      margin: 2px;
+    }
+
+    /* Deck menor */
     #deckView {
       display: flex;
       flex-wrap: wrap;
       max-width: 80px;
       margin-top: 5px;
+    }
+
+    /* Fotos */
+    .player-photo {
+      width: 40px; 
+      height: 40px; 
+      object-fit: cover; 
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 5px;
     }
 
     /* Overlays de vídeo */
@@ -188,14 +225,24 @@
       z-index: 9999;
       padding: 10px;
     }
-    video { background: #000; }
+    video {
+      background: #000;
+      max-width: 90vw;
+      max-height: 60vh;
+    }
+
+    /* Media Query para telas maiores (desktop) */
+    @media (min-width: 768px) {
+      .painel, .chat-box {
+        max-height: 300px;
+      }
+    }
   </style>
 </head>
 
 <body>
 <h1>O Poder do Dedo</h1>
 
-<!-- Modo: Organizador ou Jogador -->
 <div id="modeSelect" class="container">
   <h2>Você é o Organizador ou Jogador?</h2>
   <button id="btnHost" class="btn-dark">Organizador</button>
@@ -205,22 +252,22 @@
 <!-- HOST AREA -->
 <div id="hostArea" class="container hidden">
   <h2>Organizador</h2>
-  <div id="hostStep1">
+  <div id="hostStep1" class="flex-col">
     <button id="btnCreateGame" class="btn-success">Criar Nova Partida</button>
-    <p style="margin:10px 0;">Ou entre numa partida existente:</p>
-    <div class="row">
+    <p style="margin:10px 0; text-align:center;">Ou entre numa partida existente:</p>
+    <div class="row" style="justify-content:center;">
       <input type="text" id="inputGameCodeHost" placeholder="Código da Partida" style="flex:1;"/>
       <button id="btnJoinGameHost" class="btn-info">Entrar</button>
     </div>
   </div>
 
-  <!-- LOBBY (antes de iniciar) -->
-  <div id="hostLobby" class="hidden">
+  <!-- LOBBY (antes do jogo iniciar) -->
+  <div id="hostLobby" class="hidden flex-col">
     <h3>Código da Partida: <span id="hostGameCode"></span></h3>
     <div class="row" style="justify-content: center; margin:10px 0;">
       <div id="qrCodeLobby"></div>
     </div>
-    <p id="hostLinkInfo" class="row" style="justify-content:center;"></p>
+    <p id="hostLinkInfo" style="text-align:center;"></p>
 
     <h4>Jogadores Conectados</h4>
     <div id="hostPlayersList"></div>
@@ -229,41 +276,46 @@
   </div>
 
   <!-- JOGO INICIADO -->
-  <div id="hostGame" class="hidden">
+  <div id="hostGame" class="hidden flex-col">
     <div id="hostStatusPanel" class="status-panel"></div>
 
-    <!-- Para mostrar QR code também DURANTE o jogo -->
-    <div id="qrCodeGame" style="margin-bottom:10px;"></div>
+    <div class="row" style="justify-content:center;">
+      <div id="qrCodeGame"></div>
+    </div>
 
-    <div class="row" style="justify-content: space-between;">
-      <div style="flex:1; text-align:center;">
+    <!-- Cartas e Regras / Jogadores -->
+    <div class="flex-row">
+      <div class="section-cards flex-col">
         <h4>Carta Atual</h4>
         <div id="currentCardHost">Nenhuma</div>
-
-        <!-- Só o host pode puxar carta, independente de quem seja a vez -->
         <button id="btnDrawCard" class="btn-warning">
           &#x1F0CF; Puxar Carta
         </button>
       </div>
-      <div style="width:120px;">
+
+      <div class="section-deck">
         <h4>Baralho</h4>
         <div id="deckCount"></div>
         <div id="deckView"></div>
       </div>
+
+      <div class="section-rules">
+        <h4>Regras Ativas</h4>
+        <div id="hostRules" class="rules-list"></div>
+      </div>
+
+      <div class="section-players">
+        <h4>Jogadores</h4>
+        <div id="hostPlayersStatus"></div>
+      </div>
     </div>
-
-    <h4>Regras Ativas</h4>
-    <div id="hostRules" class="rules-list"></div>
-
-    <h4>Jogadores</h4>
-    <div id="hostPlayersStatus"></div>
 
     <h4>Painel (Eventos)</h4>
     <div id="hostPainel" class="painel"></div>
 
     <h4>Chat</h4>
     <div class="chat-box" id="hostChat"></div>
-    <div class="row">
+    <div class="row" style="justify-content:center;">
       <input type="text" id="hostChatInput" placeholder="Digite uma mensagem" style="flex:1;"/>
       <button id="btnHostSendChat" class="btn-info">Enviar</button>
     </div>
@@ -275,47 +327,59 @@
 <!-- PLAYER AREA -->
 <div id="playerArea" class="container hidden">
   <h2>Jogador</h2>
-  <div id="playerStep1">
-    <div class="row">
+  <div id="playerStep1" class="flex-col">
+    <div class="row" style="justify-content:center;">
       <input type="text" id="inputGameCodePlayer" placeholder="Código da Partida" style="flex:1;"/>
       <button id="btnEnterCodePlayer" class="btn-info">Entrar</button>
     </div>
     <p style="margin:10px 0; text-align:center;">ou use o link/QR code</p>
   </div>
 
-  <!-- Tela de cadastro (nome/foto) -->
-  <div id="playerRegister" class="hidden">
+  <!-- Cadastro do Jogador -->
+  <div id="playerRegister" class="hidden flex-col">
     <h3>Seu Nome</h3>
-    <input type="text" id="inputPlayerName" placeholder="Seu nome"/>
+    <input type="text" id="inputPlayerName" placeholder="Seu nome" />
     <h4>Carregar Foto (opcional)</h4>
-    <input type="file" id="filePlayerPhoto" accept="image/*"/>
-    <img id="previewPhoto" src="" alt="" style="max-width:100px;display:none;margin:5px 0;" />
+    <input type="file" id="filePlayerPhoto" accept="image/*" />
+    <img id="previewPhoto" src="" alt="" style="max-width:100px;display:none;margin:5px auto;" />
 
     <button id="btnJoinPlayerGame" class="btn-success">Entrar na Partida</button>
   </div>
 
-  <!-- Lobby do jogador (antes de iniciar) -->
-  <div id="playerLobby" class="hidden">
+  <!-- Lobby do Jogador (antes de iniciar) -->
+  <div id="playerLobby" class="hidden flex-col">
     <h3>Aguardando Organizador iniciar...</h3>
     <div id="playerLobbyList"></div>
   </div>
 
   <!-- Jogo Iniciado -->
-  <div id="playerGame" class="hidden">
+  <div id="playerGame" class="hidden flex-col">
     <div id="playerStatusPanel" class="status-panel hidden"></div>
 
-    <div class="row" style="justify-content: space-around;">
-      <div style="flex:1; text-align:center;">
+    <div class="flex-row">
+      <div class="section-cards flex-col">
         <h4>Carta Atual</h4>
         <div id="currentCardPlayer">Nenhuma</div>
-        <!-- Jogador SÓ pode puxar carta se for a vez dele (veremos no update) -->
+        <!-- Só aparece se for a vez do jogador -->
         <button id="btnDrawCardPlayer" class="btn-warning" style="display:none;">
           &#x1F0CF; Puxar Carta
         </button>
       </div>
-      <div style="flex:1;">
-        <h4>Regras</h4>
+
+      <div class="section-deck">
+        <h4>Baralho</h4>
+        <div id="deckCountPlayer"></div>
+        <div id="deckViewPlayer"></div>
+      </div>
+
+      <div class="section-rules">
+        <h4>Regras Ativas</h4>
         <div id="playerRules" class="rules-list"></div>
+      </div>
+
+      <div class="section-players">
+        <h4>Jogadores</h4>
+        <div id="playerListStatus"></div>
       </div>
     </div>
 
@@ -326,7 +390,7 @@
       <div id="fingerQueue" style="margin-top:5px;"></div>
     </div>
 
-    <div class="row" style="justify-content: space-between; margin-top:10px;">
+    <div class="row" style="justify-content:center;">
       <button id="btnUseJoker" class="btn-info" style="display:none;">Usar Coringa</button>
       <button id="btnActivateFinger" class="btn-warning" style="display:none;">Poder do Dedo (8)</button>
       <button id="btnRecordVideo" class="btn-dark">Gravar Vídeo</button>
@@ -334,7 +398,7 @@
 
     <!-- Overlay de Vídeo -->
     <div id="videoOverlay">
-      <video id="videoPreview" autoplay muted playsinline style="max-width:80%;border:2px solid #fff;"></video>
+      <video id="videoPreview" autoplay muted playsinline></video>
       <div style="margin-top:10px;">
         <button id="btnStartRecording" class="btn-success">Iniciar</button>
         <button id="btnStopRecording" class="btn-danger">Parar</button>
@@ -347,7 +411,7 @@
 
     <h4>Chat</h4>
     <div class="chat-box" id="playerChat"></div>
-    <div class="row">
+    <div class="row" style="justify-content:center;">
       <input type="text" id="playerChatInput" placeholder="Digite uma mensagem" style="flex:1;"/>
       <button id="btnPlayerSendChat" class="btn-info">Enviar</button>
     </div>
@@ -389,7 +453,6 @@ const hostStep1 = document.getElementById('hostStep1');
 const btnCreateGame = document.getElementById('btnCreateGame');
 const inputGameCodeHost = document.getElementById('inputGameCodeHost');
 const btnJoinGameHost = document.getElementById('btnJoinGameHost');
-
 const hostLobby = document.getElementById('hostLobby');
 const hostGame = document.getElementById('hostGame');
 const hostGameCode = document.getElementById('hostGameCode');
@@ -417,6 +480,7 @@ const playerArea = document.getElementById('playerArea');
 const playerStep1 = document.getElementById('playerStep1');
 const inputGameCodePlayer = document.getElementById('inputGameCodePlayer');
 const btnEnterCodePlayer = document.getElementById('btnEnterCodePlayer');
+
 const playerRegister = document.getElementById('playerRegister');
 const inputPlayerName = document.getElementById('inputPlayerName');
 const filePlayerPhoto = document.getElementById('filePlayerPhoto');
@@ -445,7 +509,12 @@ const playerPainel = document.getElementById('playerPainel');
 const playerChat = document.getElementById('playerChat');
 const playerChatInput = document.getElementById('playerChatInput');
 const btnPlayerSendChat = document.getElementById('btnPlayerSendChat');
+
 const playerStatusPanel = document.getElementById('playerStatusPanel');
+
+const deckCountPlayer = document.getElementById('deckCountPlayer');
+const deckViewPlayer = document.getElementById('deckViewPlayer');
+const playerListStatus = document.getElementById('playerListStatus');
 
 // Variáveis
 let gameCode = null;
@@ -486,43 +555,38 @@ btnDrawCardPlayer.onclick = drawCardPlayer;
 btnUseJoker.onclick = useJokerPlayer;
 btnActivateFinger.onclick = activateFingerPower;
 btnFingerClick.onclick = fingerClick;
-btnRecordVideo.onclick = () => { videoOverlay.style.display='flex'; };
+btnRecordVideo.onclick = () => { videoOverlay.style.display = 'flex'; };
 btnCloseVideoOverlay.onclick = closeVideoOverlay;
 btnStartRecording.onclick = startVideoRecording;
 btnStopRecording.onclick = stopVideoRecording;
 btnPlayerSendChat.onclick = sendChatAsPlayer;
 
-// Assim que a página carrega, checamos LocalStorage do player
+// Check localStorage player
 checkLocalStoragePlayer();
 
 /*
   =========================================
-  4) LOCALSTORAGE - Player não perde vaga
+  4) LOCALSTORAGE - Player
   =========================================
 */
 async function checkLocalStoragePlayer() {
   const savedGameId = localStorage.getItem("opoderdedo_gameId");
   const savedPlayerKey = localStorage.getItem("opoderdedo_playerKey");
   if (savedGameId && savedPlayerKey) {
-    // Tenta ver se ainda existe no DB
+    // Tenta ver se existe
     const snap = await db.ref(`games/${savedGameId}/players/${savedPlayerKey}`).once('value');
     if (snap.exists()) {
-      // Reconectar
       gameCode = savedGameId;
       myPlayerKey = savedPlayerKey;
-      // Ouvindo jogo
-      db.ref(`games/${gameCode}`).on('value', snapshot => {
+      db.ref(`games/${gameCode}`).on('value', (snapshot) => {
         if (!snapshot.exists()) return;
-        const data = snapshot.val();
-        updatePlayerView(data);
+        updatePlayerView(snapshot.val());
       });
-      // pula tela de digitar código
       modeSelect.classList.add('hidden');
       playerArea.classList.remove('hidden');
       playerStep1.classList.add('hidden');
       playerRegister.classList.add('hidden');
     } else {
-      // se não existe mais, limpar
       localStorage.removeItem("opoderdedo_gameId");
       localStorage.removeItem("opoderdedo_playerKey");
     }
@@ -562,7 +626,7 @@ async function createGameAsHost() {
 
 async function joinGameAsHost() {
   const code = inputGameCodeHost.value.trim();
-  if (!code) return alert("Digite código!");
+  if (!code) return alert("Digite um código!");
   const snap = await db.ref(`games/${code}`).once('value');
   if (!snap.exists()) {
     alert("Partida não encontrada!");
@@ -579,7 +643,7 @@ function showHostLobby(code) {
   hostGameCode.textContent = code;
   qrCodeLobby.innerHTML = '';
   new QRCode(qrCodeLobby, {
-    text: location.origin + location.pathname + '?gameId='+code,
+    text: location.origin + location.pathname + '?gameId=' + code,
     width: 160,
     height: 160
   });
@@ -590,82 +654,79 @@ function subscribeHost(code) {
   db.ref(`games/${code}`).on('value', snap => {
     if (!snap.exists()) return;
     const data = snap.val();
-    if (data.status==='lobby') {
+    if (data.status === 'lobby') {
       renderHostLobby(data);
-    }
-    else if (data.status==='ongoing') {
+    } else if (data.status === 'ongoing') {
       hostLobby.classList.add('hidden');
       hostGame.classList.remove('hidden');
       renderHostGame(data);
-    }
-    else if (data.status==='finished') {
+    } else if (data.status === 'finished') {
       alert("Partida Encerrada!");
     }
   });
 }
 
 function renderHostLobby(data) {
-  const playersObj = data.players || {};
-  const arr = Object.values(playersObj);
-  hostPlayersList.innerHTML = arr.map(p => {
+  const players = Object.values(data.players || {});
+  hostPlayersList.innerHTML = players.map(p => {
     const pic = p.photoURL ? `<img src="${p.photoURL}" class="player-photo" />` : '';
     return `<div>${pic} ${p.name}</div>`;
   }).join('');
 }
 
 function startGameHost() {
-  db.ref(`games/${gameCode}`).update({ status:'ongoing' });
+  db.ref(`games/${gameCode}`).update({ status: 'ongoing' });
 }
 
 function renderHostGame(data) {
-  // jogador da vez
-  const playersArr = Object.values(data.players||{});
+  // Jogador da vez
+  const playersArr = Object.values(data.players || {});
   const currentName = playersArr[data.currentPlayerIndex]?.name || '???';
   hostStatusPanel.textContent = `É a vez de: ${currentName}`;
 
-  // qr code
+  // QR Code do jogo
   qrCodeGame.innerHTML = '';
   new QRCode(qrCodeGame, {
-    text: location.origin + location.pathname + '?gameId='+gameCode,
-    width: 120, height:120
+    text: location.origin + location.pathname + '?gameId=' + gameCode,
+    width: 120,
+    height: 120
   });
 
-  // deck
+  // Deck
   deckCount.textContent = `Restantes: ${data.deck ? data.deck.length : 0}`;
-  deckView.innerHTML = (data.deck||[]).map(() => `<div class="card-back"></div>`).join('');
+  deckView.innerHTML = (data.deck || []).map(() => `<div class="card-back"></div>`).join('');
 
-  // carta atual
+  // Carta atual
   if (data.currentCard) {
     currentCardHost.innerHTML = renderCard(data.currentCard.rank, data.currentCard.suit);
   } else {
     currentCardHost.textContent = "Nenhuma";
   }
 
-  // regras
-  if (data.rules && data.rules.length>0) {
-    hostRules.innerHTML = data.rules.map(r=>`<div class="rule-item">${r}</div>`).join('');
+  // Regras
+  if (data.rules && data.rules.length > 0) {
+    hostRules.innerHTML = data.rules.map(r => `<div class="rule-item">${r}</div>`).join('');
   } else {
     hostRules.textContent = 'Nenhuma';
   }
 
-  // players
-  let html = playersArr.map((p,i) => {
+  // Players
+  hostPlayersStatus.innerHTML = playersArr.map((p, i) => {
     const pic = p.photoURL ? `<img src="${p.photoURL}" class="player-photo" />` : '';
-    const isCurrent = (i===data.currentPlayerIndex)?' (Vez)':'';
-    const coringaInfo = (p.jokers>0) ? ` [Coringas: ${p.jokers}]` : '';
-    return `<div>${pic} <strong>${p.name}</strong>${isCurrent}${coringaInfo}</div>`;
+    const isCurrent = (i === data.currentPlayerIndex) ? ' (Vez)' : '';
+    const coringas = p.jokers > 0 ? ` [Coringas: ${p.jokers}]` : '';
+    return `<div>${pic} <strong>${p.name}</strong>${isCurrent}${coringas}</div>`;
   }).join('');
-  hostPlayersStatus.innerHTML = html;
 
-  // painel
+  // Painel
   if (data.logs) {
-    hostPainel.innerHTML = data.logs.map(l=>`<div>${l}</div>`).join('');
+    hostPainel.innerHTML = data.logs.map(l => `<div>${l}</div>`).join('');
     hostPainel.scrollTop = hostPainel.scrollHeight;
   }
 
-  // chat
+  // Chat
   if (data.chat) {
-    hostChat.innerHTML = data.chat.map(c=> `<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
+    hostChat.innerHTML = data.chat.map(c => `<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
     hostChat.scrollTop = hostChat.scrollHeight;
   }
 }
@@ -673,7 +734,7 @@ function renderHostGame(data) {
 async function drawCardHost() {
   const snap = await db.ref(`games/${gameCode}`).once('value');
   const data = snap.val();
-  if (!data.deck || data.deck.length===0) {
+  if (!data.deck || data.deck.length === 0) {
     addLog("Baralho acabou!");
     return;
   }
@@ -687,7 +748,7 @@ async function drawCardHost() {
 }
 
 function endGameHost() {
-  db.ref(`games/${gameCode}`).update({ status:'finished' });
+  db.ref(`games/${gameCode}`).update({ status: 'finished' });
 }
 
 function sendChatAsHost() {
@@ -695,7 +756,7 @@ function sendChatAsHost() {
   if (!text) return;
   hostChatInput.value = '';
   db.ref(`games/${gameCode}/chat`).once('value', snap => {
-    let arr = snap.val()||[];
+    let arr = snap.val() || [];
     arr.push({ from: 'HOST', text, ts: Date.now() });
     db.ref(`games/${gameCode}/chat`).set(arr);
   });
@@ -703,24 +764,23 @@ function sendChatAsHost() {
 
 /*
   =========================================
-  6) MANUSEAR EFEITO DE CARTA
+  6) CARTAS E REGRAS
   =========================================
 */
 function handleCardEffect(card, gameData) {
   let logs = gameData.logs || [];
-  const playersArr = Object.values(gameData.players||{});
+  const playersArr = Object.values(gameData.players || {});
   let currentIndex = gameData.currentPlayerIndex;
   let direction = gameData.direction;
   let rules = gameData.rules || [];
-  const currentPlayerName = playersArr[currentIndex]?.name || "???";
+  const currentPlayerName = playersArr[currentIndex]?.name || '???';
 
-  logs.push(`${currentPlayerName} puxou [${card.rank}${card.suit!=='Coringa'?card.suit:''}]`);
+  logs.push(`${currentPlayerName} puxou [${card.rank}${card.suit !== 'Coringa' ? card.suit : ''}]`);
 
   let passTurn = true;
 
   switch (card.rank) {
     case '4':
-      // Nova regra
       const newRule = prompt("Nova regra?");
       if (newRule) {
         rules.push(newRule);
@@ -728,34 +788,30 @@ function handleCardEffect(card, gameData) {
       }
       break;
     case '6':
-      // Quebra tudo
       rules = [];
       logs.push("Todas as regras foram quebradas!");
       break;
     case '8':
-      // Poder do Dedo
-      const pKey = Object.keys(gameData.players||{})[currentIndex];
+      const pKey = Object.keys(gameData.players || {})[currentIndex];
       if (pKey) {
         db.ref(`games/${gameCode}/players/${pKey}/hasFingerPower`).set(true);
         logs.push(`${currentPlayerName} obteve o Poder do Dedo!`);
       }
       break;
     case '9':
-      // inverte
       direction *= -1;
       logs.push("O sentido foi invertido!");
       break;
     case '10':
-      // pula
       passTurn = false;
       setTimeout(() => {
         let ni = currentIndex + direction;
-        if (ni<0) ni = playersArr.length-1;
-        if (ni>=playersArr.length) ni=0;
-        // pula outro
+        if (ni < 0) ni = playersArr.length - 1;
+        if (ni >= playersArr.length) ni = 0;
+        // pula mais 1
         ni += direction;
-        if (ni<0) ni = playersArr.length-1;
-        if (ni>=playersArr.length) ni=0;
+        if (ni < 0) ni = playersArr.length - 1;
+        if (ni >= playersArr.length) ni = 0;
         db.ref(`games/${gameCode}`).update({
           currentPlayerIndex: ni,
           direction,
@@ -776,10 +832,10 @@ function handleCardEffect(card, gameData) {
       break;
     case 'Joker':
       // coringa
-      const jkKey = Object.keys(gameData.players||{})[currentIndex];
+      const jkKey = Object.keys(gameData.players || {})[currentIndex];
       if (jkKey) {
-        const oldVal = playersArr[currentIndex].jokers||0;
-        db.ref(`games/${gameCode}/players/${jkKey}/jokers`).set(oldVal+1);
+        const oldVal = playersArr[currentIndex].jokers || 0;
+        db.ref(`games/${gameCode}/players/${jkKey}/jokers`).set(oldVal + 1);
         logs.push(`${currentPlayerName} ganhou 1 Coringa!`);
       }
       break;
@@ -787,11 +843,10 @@ function handleCardEffect(card, gameData) {
       // A,2,3,5,7 etc.
   }
 
-  // se for 10, passTurn é false, mas resolvido acima
-  if (passTurn && card.rank!=='10') {
+  if (passTurn && card.rank !== '10') {
     let ni = currentIndex + direction;
-    if (ni<0) ni = playersArr.length-1;
-    if (ni>=playersArr.length) ni=0;
+    if (ni < 0) ni = playersArr.length - 1;
+    if (ni >= playersArr.length) ni = 0;
     db.ref(`games/${gameCode}`).update({
       currentPlayerIndex: ni,
       direction,
@@ -804,7 +859,7 @@ function handleCardEffect(card, gameData) {
 }
 
 function sendDrinkAlert(playerIndex, gameData) {
-  const pKey = Object.keys(gameData.players||{})[playerIndex];
+  const pKey = Object.keys(gameData.players || {})[playerIndex];
   if (!pKey) return;
   db.ref(`games/${gameCode}/players/${pKey}/needsToDrink`).set(Date.now());
 }
@@ -814,8 +869,6 @@ function sendDrinkAlert(playerIndex, gameData) {
   7) MODO JOGADOR
   =========================================
 */
-
-// Se entrou via URL ?gameId=...
 (function checkUrlParam() {
   const params = new URLSearchParams(location.search);
   if (params.has('gameId')) {
@@ -831,7 +884,7 @@ function sendDrinkAlert(playerIndex, gameData) {
 
 function enterCodePlayer() {
   const code = inputGameCodePlayer.value.trim();
-  if (!code) return alert("Digite código!");
+  if (!code) return alert("Digite o código!");
   db.ref(`games/${code}`).once('value', snap => {
     if (!snap.exists()) {
       alert("Partida não encontrada!");
@@ -861,14 +914,13 @@ async function registerPlayerInGame() {
   const name = inputPlayerName.value.trim();
   if (!name) return alert("Digite seu nome!");
 
-  // Upload foto, se tiver
+  // Faz upload da foto se tiver
   if (myPhotoFile) {
     const storageRef = storage.ref(`games/${gameCode}/photos/${Date.now()}`);
     await storageRef.put(myPhotoFile);
     myPhotoURL = await storageRef.getDownloadURL();
   }
 
-  // Criar player no DB
   const playersRef = db.ref(`games/${gameCode}/players`).push();
   myPlayerKey = playersRef.key;
   await playersRef.set({
@@ -878,15 +930,13 @@ async function registerPlayerInGame() {
     hasFingerPower: false
   });
 
-  // Guardar LocalStorage
   localStorage.setItem("opoderdedo_gameId", gameCode);
   localStorage.setItem("opoderdedo_playerKey", myPlayerKey);
   localStorage.setItem("opoderdedo_playerName", name);
 
-  // Ouvindo jogo
-  db.ref(`games/${gameCode}`).on('value', s => {
-    if (!s.exists()) return;
-    updatePlayerView(s.val());
+  db.ref(`games/${gameCode}`).on('value', snapshot => {
+    if (!snapshot.exists()) return;
+    updatePlayerView(snapshot.val());
   });
 
   playerRegister.classList.add('hidden');
@@ -898,47 +948,57 @@ async function registerPlayerInGame() {
   =========================================
 */
 function updatePlayerView(gameData) {
-  if (gameData.status==='lobby') {
-    // Lobby
+  if (gameData.status === 'lobby') {
     playerLobby.classList.remove('hidden');
     playerGame.classList.add('hidden');
-    const arr = Object.values(gameData.players||{});
-    playerLobbyList.innerHTML = arr.map(p=>{
-      const pic = p.photoURL ? `<img src="${p.photoURL}" class="player-photo" />`:'';
+    const arr = Object.values(gameData.players || {});
+    playerLobbyList.innerHTML = arr.map(p => {
+      const pic = p.photoURL ? `<img src="${p.photoURL}" class="player-photo" />` : '';
       return `<div>${pic} ${p.name}</div>`;
     }).join('');
-  } else if (gameData.status==='ongoing') {
+  }
+  else if (gameData.status === 'ongoing') {
     playerLobby.classList.add('hidden');
     playerGame.classList.remove('hidden');
 
     // Info do meu player
-    const pObj = gameData.players[myPlayerKey];
+    const pObj = gameData.players?.[myPlayerKey];
     if (!pObj) {
       playerInfo.textContent = "Você não está no jogo?";
       return;
     } else {
-      playerInfo.textContent = `Olá, ${pObj.name} | Coringas: ${pObj.jokers||0}`;
+      playerInfo.textContent = `Olá, ${pObj.name} | Coringas: ${pObj.jokers || 0}`;
     }
 
+    // Lista de jogadores
+    const playersArr = Object.values(gameData.players || {});
+    playerListStatus.innerHTML = playersArr.map((p, i) => {
+      const pic = p.photoURL ? `<img src="${p.photoURL}" class="player-photo" />` : '';
+      const isCurrent = (i === gameData.currentPlayerIndex) ? ' (Vez)' : '';
+      const coringas = p.jokers > 0 ? ` [Coringas: ${p.jokers}]` : '';
+      return `<div>${pic} <strong>${p.name}</strong>${isCurrent}${coringas}</div>`;
+    }).join('');
+
+    // Deck (quantidade e visual)
+    deckCountPlayer.textContent = `Restantes: ${gameData.deck ? gameData.deck.length : 0}`;
+    deckViewPlayer.innerHTML = (gameData.deck || []).map(() => `<div class="card-back"></div>`).join('');
+
     // Quem é o atual
-    const arr = Object.values(gameData.players||{});
+    const allKeys = Object.keys(gameData.players || {});
     const currentIndex = gameData.currentPlayerIndex;
-    const currentName = arr[currentIndex]?.name || '???';
-    const allKeys = Object.keys(gameData.players||{});
     const currentKey = allKeys[currentIndex];
+    const currentName = playersArr[currentIndex]?.name || '???';
 
     if (currentKey === myPlayerKey) {
       // É minha vez
       playerStatusPanel.classList.remove('hidden');
       playerStatusPanel.style.color = "#28a745";
       playerStatusPanel.textContent = "É A SUA VEZ!";
-      // Exibir botão p/ puxar carta
       btnDrawCardPlayer.style.display = 'inline-block';
     } else {
       playerStatusPanel.classList.remove('hidden');
       playerStatusPanel.style.color = "#007BFF";
       playerStatusPanel.textContent = `É a vez de: ${currentName}`;
-      // Esconde botão
       btnDrawCardPlayer.style.display = 'none';
     }
 
@@ -950,22 +1010,22 @@ function updatePlayerView(gameData) {
     }
 
     // Regras
-    if (gameData.rules && gameData.rules.length>0) {
-      playerRules.innerHTML = gameData.rules.map(r=>`<div class="rule-item">${r}</div>`).join('');
+    if (gameData.rules && gameData.rules.length > 0) {
+      playerRules.innerHTML = gameData.rules.map(r => `<div class="rule-item">${r}</div>`).join('');
     } else {
       playerRules.innerHTML = 'Nenhuma';
     }
 
     // Poder do Dedo
-    btnActivateFinger.style.display = pObj.hasFingerPower ? 'inline-block':'none';
+    btnActivateFinger.style.display = pObj.hasFingerPower ? 'inline-block' : 'none';
     // Coringas
-    btnUseJoker.style.display = (pObj.jokers>0) ? 'inline-block':'none';
+    btnUseJoker.style.display = (pObj.jokers > 0) ? 'inline-block' : 'none';
 
-    // FingerPower global
-    const fp = gameData.fingerPower||{};
+    // FingerPower
+    const fp = gameData.fingerPower || {};
     if (fp.active) {
       fingerBox.classList.remove('hidden');
-      const found = (fp.queue||[]).find(x => x.playerKey===myPlayerKey);
+      const found = (fp.queue || []).find(x => x.playerKey === myPlayerKey);
       if (found) {
         btnFingerClick.disabled = true;
         btnFingerClick.textContent = "Você já clicou!";
@@ -973,20 +1033,20 @@ function updatePlayerView(gameData) {
         btnFingerClick.disabled = false;
         btnFingerClick.textContent = "Clique Rápido!";
       }
-      fingerQueue.innerHTML = (fp.queue||[]).map((q,i)=>`${i+1}º: ${q.name}`).join('<br>');
+      fingerQueue.innerHTML = (fp.queue || []).map((q, i) => `${i+1}º: ${q.name}`).join('<br>');
     } else {
       fingerBox.classList.add('hidden');
     }
 
-    // Painel (logs)
+    // Painel
     if (gameData.logs) {
-      playerPainel.innerHTML = gameData.logs.map(l=>`<div>${l}</div>`).join('');
+      playerPainel.innerHTML = gameData.logs.map(l => `<div>${l}</div>`).join('');
       playerPainel.scrollTop = playerPainel.scrollHeight;
     }
 
     // Chat
     if (gameData.chat) {
-      playerChat.innerHTML = gameData.chat.map(c=>`<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
+      playerChat.innerHTML = gameData.chat.map(c => `<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
       playerChat.scrollTop = playerChat.scrollHeight;
     }
 
@@ -995,14 +1055,15 @@ function updatePlayerView(gameData) {
       alert("Você precisa beber!");
       db.ref(`games/${gameCode}/players/${myPlayerKey}/needsToDrink`).remove();
     }
-  } else if (gameData.status==='finished') {
+  }
+  else if (gameData.status === 'finished') {
     alert("Partida Encerrada!");
   }
 }
 
 /*
   =========================================
-  9) PUXAR CARTA (JOGADOR) - só se for a vez dele
+  9) PUXAR CARTA (JOGADOR)
   =========================================
 */
 async function drawCardPlayer() {
@@ -1010,13 +1071,12 @@ async function drawCardPlayer() {
   const snap = await db.ref(`games/${gameCode}`).once('value');
   const data = snap.val();
   if (!data) return;
-  const allKeys = Object.keys(data.players||{});
+  const allKeys = Object.keys(data.players || {});
   if (allKeys[data.currentPlayerIndex] !== myPlayerKey) {
     alert("Não é sua vez de puxar carta!");
     return;
   }
-  // puxa carta
-  if (!data.deck || data.deck.length===0) {
+  if (!data.deck || data.deck.length === 0) {
     addLog("Baralho acabou!");
     return;
   }
@@ -1039,8 +1099,8 @@ function useJokerPlayer() {
   db.ref(`games/${gameCode}/players/${myPlayerKey}`).once('value', snap => {
     const p = snap.val();
     if (!p) return;
-    if (p.jokers>0) {
-      db.ref(`games/${gameCode}/players/${myPlayerKey}/jokers`).set(p.jokers-1);
+    if (p.jokers > 0) {
+      db.ref(`games/${gameCode}/players/${myPlayerKey}/jokers`).set(p.jokers - 1);
       addLog(`${p.name} usou 1 Coringa para não beber!`);
     }
   });
@@ -1048,19 +1108,20 @@ function useJokerPlayer() {
 
 function activateFingerPower() {
   if (!myPlayerKey) return;
+  const name = localStorage.getItem("opoderdedo_playerName") || inputPlayerName.value.trim() || 'Jogador';
   db.ref(`games/${gameCode}/fingerPower`).set({
     active: true,
     owner: myPlayerKey,
-    queue: [{ playerKey: myPlayerKey, name: localStorage.getItem("opoderdedo_playerName") || inputPlayerName.value.trim() }]
+    queue: [{ playerKey: myPlayerKey, name }]
   });
   db.ref(`games/${gameCode}/players/${myPlayerKey}/hasFingerPower`).set(false);
-  addLog(`${localStorage.getItem("opoderdedo_playerName") || 'Jogador'} ativou o Poder do Dedo!`);
+  addLog(`${name} ativou o Poder do Dedo!`);
 }
 
 function fingerClick() {
   db.ref(`games/${gameCode}/fingerPower/queue`).once('value', snap => {
-    let arr = snap.val()||[];
-    if (arr.find(x=>x.playerKey===myPlayerKey)) return;
+    let arr = snap.val() || [];
+    if (arr.find(x => x.playerKey === myPlayerKey)) return;
     const name = localStorage.getItem("opoderdedo_playerName") || 'Jogador';
     arr.push({ playerKey: myPlayerKey, name });
     db.ref(`games/${gameCode}/fingerPower/queue`).set(arr);
@@ -1068,14 +1129,14 @@ function fingerClick() {
 }
 
 function finalizeFingerPower() {
-  // se quiser um timer no host
+  // Se quiser um timer no host
   db.ref(`games/${gameCode}/fingerPower`).once('value', snap => {
     const fp = snap.val();
-    if (!fp || !fp.queue||fp.queue.length===0) return;
+    if (!fp || !fp.queue || fp.queue.length===0) return;
     const last = fp.queue[fp.queue.length-1];
     addLog(`O último a clicar foi ${last.name}, então ele bebe!`);
     db.ref(`games/${gameCode}/players/${last.playerKey}/needsToDrink`).set(Date.now());
-    db.ref(`games/${gameCode}/fingerPower`).update({ active:false, queue:[]});
+    db.ref(`games/${gameCode}/fingerPower`).update({ active: false, queue: [] });
   });
 }
 
@@ -1087,22 +1148,23 @@ function finalizeFingerPower() {
 async function startVideoRecording() {
   if (!localCameraStream) {
     try {
-      localCameraStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+      localCameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       videoPreview.srcObject = localCameraStream;
     } catch(err) {
       alert("Não foi possível acessar a câmera: " + err);
       return;
     }
   }
-  recordedChunks=[];
+  recordedChunks = [];
   mediaRecorder = new MediaRecorder(localCameraStream);
-  mediaRecorder.ondataavailable = e=> {
-    if (e.data.size>0) recordedChunks.push(e.data);
+  mediaRecorder.ondataavailable = e => {
+    if (e.data.size > 0) {
+      recordedChunks.push(e.data);
+    }
   };
-  mediaRecorder.onstop = async ()=>{
-    if (recordedChunks.length>0) {
-      const blob = new Blob(recordedChunks, {type:'video/mp4'});
-      // upload
+  mediaRecorder.onstop = async () => {
+    if (recordedChunks.length > 0) {
+      const blob = new Blob(recordedChunks, { type: 'video/mp4' });
       const ref = storage.ref(`games/${gameCode}/videos/${Date.now()}.mp4`);
       await ref.put(blob);
       const url = await ref.getDownloadURL();
@@ -1114,19 +1176,19 @@ async function startVideoRecording() {
 }
 
 function stopVideoRecording() {
-  if (mediaRecorder && mediaRecorder.state==='recording') {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
     mediaRecorder.stop();
     addLog("Parou gravação de vídeo.");
   }
 }
 
 function closeVideoOverlay() {
-  videoOverlay.style.display='none';
+  videoOverlay.style.display = 'none';
   if (localCameraStream) {
-    localCameraStream.getTracks().forEach(t=>t.stop());
-    localCameraStream=null;
+    localCameraStream.getTracks().forEach(t => t.stop());
+    localCameraStream = null;
   }
-  videoPreview.srcObject=null;
+  videoPreview.srcObject = null;
 }
 
 /*
@@ -1137,9 +1199,9 @@ function closeVideoOverlay() {
 function sendChatAsPlayer() {
   const text = playerChatInput.value.trim();
   if (!text) return;
-  playerChatInput.value='';
+  playerChatInput.value = '';
   db.ref(`games/${gameCode}/chat`).once('value', snap => {
-    let arr = snap.val()||[];
+    let arr = snap.val() || [];
     const name = localStorage.getItem("opoderdedo_playerName") || 'Jogador';
     arr.push({ from: name, text, ts: Date.now() });
     db.ref(`games/${gameCode}/chat`).set(arr);
@@ -1148,12 +1210,12 @@ function sendChatAsPlayer() {
 
 /*
   =========================================
-  13) LOG HELPER (renomeado “painel” no front, mas internamente chamamos logs)
+  13) LOG HELPER (“painel” no front, mas no DB chamamos logs)
   =========================================
 */
 function addLog(msg) {
   db.ref(`games/${gameCode}/logs`).once('value', snap => {
-    let arr = snap.val()||[];
+    let arr = snap.val() || [];
     arr.push(msg);
     db.ref(`games/${gameCode}/logs`).set(arr);
   });
@@ -1161,45 +1223,34 @@ function addLog(msg) {
 
 /*
   =========================================
-  14) GERA GAME CODE (6 dígitos)
+  14) FUNÇÕES AUXILIARES
   =========================================
 */
 function generateGameCode() {
-  return Math.floor(100000 + Math.random()*900000).toString();
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-/*
-  =========================================
-  15) GERA DECK E EMBARALHA
-  =========================================
-*/
 function generateDeck() {
   const suits = ["♥","♦","♣","♠"];
   const ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
   let deck = [];
   for (let s of suits) {
     for (let r of ranks) {
-      deck.push({rank:r, suit:s});
+      deck.push({ rank: r, suit: s });
     }
   }
   for (let i=0; i<3; i++){
     deck.push({ rank:"Joker", suit:"Coringa"});
   }
-  // Fisher-Yates
   for (let i = deck.length -1; i>0; i--){
-    const j = Math.floor(Math.random()*(i+1));
+    const j = Math.floor(Math.random()* (i+1));
     [deck[i], deck[j]] = [deck[j], deck[i]];
   }
   return deck;
 }
 
-/*
-  =========================================
-  16) RENDER CARD
-  =========================================
-*/
 function renderCard(rank, suit) {
-  if (rank === 'Joker') {
+  if (rank === "Joker") {
     return `
       <div class="card-front" style="background:#ffd700;">
         <div style="position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); font-size:1rem; color:#000;">
