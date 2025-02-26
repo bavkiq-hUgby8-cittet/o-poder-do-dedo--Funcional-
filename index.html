@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>O Poder do Dedo - com Chat & Vídeo</title>
+  <title>O Poder do Dedo - Mais Claro e Responsivo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Firebase (compat) - App, Database, Storage -->
@@ -14,42 +14,79 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
-    body {
+    /* Layout claro e responsivo */
+    * {
       margin: 0; padding: 0;
+      box-sizing: border-box;
+    }
+    body {
       font-family: Arial, sans-serif;
-      background: #222; 
-      color: #fff;
+      background: #fafafa; 
+      color: #333;
       min-height: 100vh;
-      display: flex; 
+      display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
     }
-    h1, h2, h3 { text-align: center; }
-    .container {
-      background: #333;
-      border: 1px solid #555;
-      border-radius: 6px;
-      width: 95%;
-      max-width: 600px;
-      margin-top: 20px;
-      padding: 15px;
+    h1, h2, h3, h4 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #444;
     }
     button {
-      padding: 8px 12px;
-      background: #444;
-      border: 1px solid #666;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      margin: 5px;
       cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .btn-dark {
+      background: #555; 
       color: #fff;
-      margin: 5px 0;
     }
-    input[type="text"], input[type="file"] {
-      width: 100%;
-      padding: 8px;
-      margin: 6px 0;
+    .btn-primary {
+      background: #007BFF; 
+      color: #fff;
     }
-    .hidden { display: none !important; }
-    .row { display: flex; gap: 10px; }
+    .btn-success {
+      background: #28a745;
+      color: #fff;
+    }
+    .btn-danger {
+      background: #dc3545;
+      color: #fff;
+    }
+    .btn-warning {
+      background: #ffc107;
+      color: #212529;
+    }
+    .btn-info {
+      background: #17a2b8;
+      color: #fff;
+    }
+    .container {
+      width: 95%;
+      max-width: 600px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .hidden {
+      display: none !important;
+    }
+    .row {
+      display: flex; 
+      gap: 10px;
+      flex-wrap: wrap;
+    }
     .player-photo {
       width: 40px; 
       height: 40px; 
@@ -59,61 +96,80 @@
       margin-right: 5px;
     }
     .card-front {
-      width: 80px;
-      height: 120px;
+      width: 100px;
+      height: 150px;
       background: #fff;
       position: relative;
       color: #000;
       border: 2px solid #000;
-      border-radius: 5px;
+      border-radius: 6px;
       margin: 5px 0;
     }
     .card-rank-suit {
       position: absolute;
       top: 8px; left: 8px;
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       font-weight: bold;
     }
     .red { color: red; }
-    .black { color: black; }
+    .black { color: #000; }
     .card-back {
-      width: 20px; 
-      height: 30px; 
-      background: #999;
-      border-radius: 2px;
+      width: 15px; 
+      height: 25px; 
+      background: #bbb;
+      border-radius: 3px;
       display: inline-block;
       margin: 2px;
     }
     .log, .chat-box {
-      background: #111;
-      border: 1px solid #666;
+      background: #f9f9f9;
+      border: 1px solid #ccc;
       border-radius: 4px;
       max-height: 150px;
       overflow-y: auto;
-      padding: 6px;
+      padding: 8px;
       margin-top: 10px;
       font-size: 0.9rem;
+      color: #333;
     }
     .rules-list {
-      background: #444;
-      border: 1px solid #666;
+      background: #f9f9f9;
+      border: 1px solid #ccc;
       border-radius: 4px;
-      padding: 6px;
+      padding: 8px;
       min-height: 40px;
     }
     .rule-item {
-      background: #555;
+      background: #eee;
       margin: 4px 0;
       padding: 4px;
       border-radius: 3px;
     }
     .finger-box {
-      background: #555; 
-      padding: 10px; 
-      margin: 10px 0; 
+      background: #ffebb7;
+      border: 1px solid #ffcf52;
+      padding: 10px;
+      margin: 10px 0;
       border-radius: 5px;
     }
-    #cameraOverlay, #videoOverlay {
+    .status-panel {
+      background: #e7f3ff;
+      border: 1px solid #bee0ff;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      text-align: center;
+      font-weight: bold;
+      color: #007BFF;
+    }
+    #deckView {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 80px;
+      margin-top: 5px;
+    }
+    /* Overlays de vídeo */
+    #videoOverlay {
       position: fixed; 
       top:0; left:0;
       width: 100%; height: 100%;
@@ -123,57 +179,62 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      z-index: 9999;
+      padding: 10px;
     }
     video { background: #000; }
   </style>
 </head>
-<body>
-<h1>O Poder do Dedo - Chat & Vídeo</h1>
 
-<!-- Seletor de Modo (Host/Jogador) -->
+<body>
+<h1>O Poder do Dedo</h1>
+
 <div id="modeSelect" class="container">
   <h2>Você é o Organizador ou Jogador?</h2>
-  <button id="btnHost">Organizador</button>
-  <button id="btnPlayer">Jogador</button>
+  <button id="btnHost" class="btn-dark">Organizador</button>
+  <button id="btnPlayer" class="btn-primary">Jogador</button>
 </div>
 
 <!-- HOST AREA -->
 <div id="hostArea" class="container hidden">
   <h2>Organizador</h2>
-  <!-- Step 1: criar ou entrar -->
   <div id="hostStep1">
-    <button id="btnCreateGame">Criar Nova Partida</button>
-    <p>ou</p>
-    <div class="row" style="align-items: center;">
-      <input type="text" id="inputGameCodeHost" placeholder="Código da Partida"/>
-      <button id="btnJoinGameHost">Entrar</button>
+    <button id="btnCreateGame" class="btn-success">Criar Nova Partida</button>
+    <p style="margin:10px 0;">Ou entre numa partida existente:</p>
+    <div class="row">
+      <input type="text" id="inputGameCodeHost" placeholder="Código da Partida" style="flex:1;"/>
+      <button id="btnJoinGameHost" class="btn-info">Entrar</button>
     </div>
   </div>
 
-  <!-- Lobby -->
   <div id="hostLobby" class="hidden">
     <h3>Código da Partida: <span id="hostGameCode"></span></h3>
-    <div class="center" id="qrCodeContainer"></div>
-    <p class="center" id="hostLinkInfo"></p>
+    <div class="row" style="justify-content: center; margin:10px 0;">
+      <div id="qrCodeContainer"></div>
+    </div>
+    <p id="hostLinkInfo" class="row" style="justify-content:center;"></p>
+
     <h4>Jogadores Conectados</h4>
     <div id="hostPlayersList"></div>
-    <button id="btnStartGame">Iniciar Partida</button>
+    <button id="btnStartGame" class="btn-primary">Iniciar Partida</button>
   </div>
 
-  <!-- Jogo -->
   <div id="hostGame" class="hidden">
+    <div id="hostStatusPanel" class="status-panel"></div>
+
     <div class="row" style="justify-content: space-between;">
-      <div>
+      <div style="flex:1; text-align:center;">
+        <h4>Carta Atual</h4>
+        <div id="currentCardHost">Nenhuma</div>
+        <button id="btnDrawCard" class="btn-warning">Puxar Carta</button>
+      </div>
+      <div style="width:120px;">
         <h4>Baralho</h4>
         <div id="deckCount"></div>
         <div id="deckView"></div>
       </div>
-      <div>
-        <h4>Carta Atual</h4>
-        <div id="currentCardHost">Nenhuma</div>
-        <button id="btnDrawCard">Puxar Carta</button>
-      </div>
     </div>
+
     <h4>Regras Ativas</h4>
     <div id="hostRules" class="rules-list"></div>
 
@@ -186,65 +247,52 @@
     <h4>Chat</h4>
     <div class="chat-box" id="hostChat"></div>
     <div class="row">
-      <input type="text" id="hostChatInput" placeholder="Digite uma mensagem"/>
-      <button id="btnHostSendChat">Enviar</button>
+      <input type="text" id="hostChatInput" placeholder="Digite uma mensagem" style="flex:1;"/>
+      <button id="btnHostSendChat" class="btn-info">Enviar</button>
     </div>
 
-    <button id="btnEndGame" style="margin-top:10px;">Encerrar Partida</button>
+    <button id="btnEndGame" class="btn-danger" style="margin-top:10px;">Encerrar Partida</button>
   </div>
 </div>
 
 <!-- PLAYER AREA -->
 <div id="playerArea" class="container hidden">
   <h2>Jogador</h2>
-  <!-- Step 1: Digitar código ou link -->
   <div id="playerStep1">
-    <div class="row" style="align-items: center;">
-      <input type="text" id="inputGameCodePlayer" placeholder="Código da Partida"/>
-      <button id="btnEnterCodePlayer">Entrar</button>
+    <div class="row">
+      <input type="text" id="inputGameCodePlayer" placeholder="Código da Partida" style="flex:1;"/>
+      <button id="btnEnterCodePlayer" class="btn-info">Entrar</button>
     </div>
-    <p class="center">ou use o link/QR code</p>
+    <p style="margin:10px 0; text-align:center;">ou use o link/QR code</p>
   </div>
 
-  <!-- Cadastro Nome/Foto -->
   <div id="playerRegister" class="hidden">
-    <h3>Digite seu Nome</h3>
+    <h3>Seu Nome</h3>
     <input type="text" id="inputPlayerName" placeholder="Seu nome"/>
-    <h4>Foto (opcional)</h4>
+    <h4>Carregar ou Tirar Foto (opcional)</h4>
+    <!-- AGORA SÓ TEM O INPUT DE ARQUIVO -->
     <input type="file" id="filePlayerPhoto" accept="image/*"/>
-    <p>ou</p>
-    <button id="btnOpenCamera">Tirar Foto Agora</button>
 
-    <!-- Overlay da Câmera -->
-    <div id="cameraOverlay">
-      <video id="cameraPreview" autoplay muted playsinline style="max-width:80%;border:2px solid #fff;"></video>
-      <div>
-        <button id="btnCapturePhoto">Capturar</button>
-        <button id="btnCloseCamera">Fechar</button>
-      </div>
-    </div>
     <img id="previewPhoto" src="" alt="" style="max-width:100px;display:none;margin:5px 0;" />
 
-    <button id="btnJoinPlayerGame">Entrar na Partida</button>
+    <button id="btnJoinPlayerGame" class="btn-success">Entrar na Partida</button>
   </div>
 
-  <!-- Lobby -->
   <div id="playerLobby" class="hidden">
     <h3>Aguardando Organizador iniciar...</h3>
     <div id="playerLobbyList"></div>
   </div>
 
-  <!-- Jogo -->
   <div id="playerGame" class="hidden">
-    <h4 id="playerInfo"></h4>
-    <div class="row" style="justify-content: space-between;">
-      <div>
+    <div id="playerStatusPanel" class="status-panel hidden"></div>
+
+    <div class="row" style="justify-content: space-around;">
+      <div style="flex:1; text-align:center;">
         <h4>Carta Atual</h4>
         <div id="currentCardPlayer">Nenhuma</div>
-        <!-- Se quiser permitir o jogador puxar carta, deixamos esse botão visível -->
-        <button id="btnDrawCardPlayer">Puxar Carta</button>
+        <button id="btnDrawCardPlayer" class="btn-warning">Puxar Carta</button>
       </div>
-      <div>
+      <div style="flex:1;">
         <h4>Regras</h4>
         <div id="playerRules" class="rules-list"></div>
       </div>
@@ -253,23 +301,23 @@
     <div class="finger-box hidden" id="fingerBox">
       <h4>Poder do Dedo Ativo!</h4>
       <p>Clique <strong>AGORA</strong> para não ser o último!</p>
-      <button id="btnFingerClick">Clique Rápido!</button>
-      <div id="fingerQueue"></div>
+      <button id="btnFingerClick" class="btn-danger">Clique Rápido!</button>
+      <div id="fingerQueue" style="margin-top:5px;"></div>
     </div>
 
-    <div class="row" style="justify-content: space-between;">
-      <button id="btnUseJoker" style="display:none;">Usar Coringa</button>
-      <button id="btnActivateFinger" style="display:none;">Poder do Dedo (8)</button>
-      <button id="btnRecordVideo">Gravar Vídeo</button>
+    <div class="row" style="justify-content: space-between; margin-top:10px;">
+      <button id="btnUseJoker" class="btn-info" style="display:none;">Usar Coringa</button>
+      <button id="btnActivateFinger" class="btn-warning" style="display:none;">Poder do Dedo (8)</button>
+      <button id="btnRecordVideo" class="btn-dark">Gravar Vídeo</button>
     </div>
 
     <!-- Overlay de Vídeo -->
     <div id="videoOverlay">
       <video id="videoPreview" autoplay muted playsinline style="max-width:80%;border:2px solid #fff;"></video>
-      <div>
-        <button id="btnStartRecording">Iniciar</button>
-        <button id="btnStopRecording">Parar</button>
-        <button id="btnCloseVideoOverlay">Fechar</button>
+      <div style="margin-top:10px;">
+        <button id="btnStartRecording" class="btn-success">Iniciar</button>
+        <button id="btnStopRecording" class="btn-danger">Parar</button>
+        <button id="btnCloseVideoOverlay" class="btn-dark">Fechar</button>
       </div>
     </div>
 
@@ -279,8 +327,8 @@
     <h4>Chat</h4>
     <div class="chat-box" id="playerChat"></div>
     <div class="row">
-      <input type="text" id="playerChatInput" placeholder="Digite uma mensagem"/>
-      <button id="btnPlayerSendChat">Enviar</button>
+      <input type="text" id="playerChatInput" placeholder="Digite uma mensagem" style="flex:1;"/>
+      <button id="btnPlayerSendChat" class="btn-info">Enviar</button>
     </div>
   </div>
 </div>
@@ -338,6 +386,7 @@ const btnEndGame = document.getElementById('btnEndGame');
 const hostChat = document.getElementById('hostChat');
 const hostChatInput = document.getElementById('hostChatInput');
 const btnHostSendChat = document.getElementById('btnHostSendChat');
+const hostStatusPanel = document.getElementById('hostStatusPanel');
 
 // Player
 const playerArea = document.getElementById('playerArea');
@@ -347,11 +396,6 @@ const btnEnterCodePlayer = document.getElementById('btnEnterCodePlayer');
 const playerRegister = document.getElementById('playerRegister');
 const inputPlayerName = document.getElementById('inputPlayerName');
 const filePlayerPhoto = document.getElementById('filePlayerPhoto');
-const cameraOverlay = document.getElementById('cameraOverlay');
-const cameraPreview = document.getElementById('cameraPreview');
-const btnOpenCamera = document.getElementById('btnOpenCamera');
-const btnCapturePhoto = document.getElementById('btnCapturePhoto');
-const btnCloseCamera = document.getElementById('btnCloseCamera');
 const previewPhoto = document.getElementById('previewPhoto');
 const btnJoinPlayerGame = document.getElementById('btnJoinPlayerGame');
 const playerLobby = document.getElementById('playerLobby');
@@ -376,6 +420,7 @@ const playerLog = document.getElementById('playerLog');
 const playerChat = document.getElementById('playerChat');
 const playerChatInput = document.getElementById('playerChatInput');
 const btnPlayerSendChat = document.getElementById('btnPlayerSendChat');
+const playerStatusPanel = document.getElementById('playerStatusPanel');
 
 // Variáveis
 let gameCode = null;
@@ -395,7 +440,6 @@ btnHost.onclick = () => {
   modeSelect.classList.add('hidden');
   hostArea.classList.remove('hidden');
 };
-
 btnPlayer.onclick = () => {
   modeSelect.classList.add('hidden');
   playerArea.classList.remove('hidden');
@@ -412,11 +456,8 @@ btnHostSendChat.onclick = sendChatAsHost;
 // Player
 btnEnterCodePlayer.onclick = enterCodePlayer;
 filePlayerPhoto.onchange = handleFilePlayerPhoto;
-btnOpenCamera.onclick = openCamera;
-btnCloseCamera.onclick = closeCamera;
-btnCapturePhoto.onclick = capturePhoto;
 btnJoinPlayerGame.onclick = registerPlayerInGame;
-btnDrawCardPlayer.onclick = drawCardHost; // se vc quer que jogador tb possa puxar
+btnDrawCardPlayer.onclick = drawCardHost; // Se permitir jogador puxar
 btnUseJoker.onclick = useJokerPlayer;
 btnActivateFinger.onclick = activateFingerPower;
 btnFingerClick.onclick = fingerClick;
@@ -447,7 +488,6 @@ function generateDeck() {
   for (let i=0; i<3; i++){
     deck.push({ rank:"Joker", suit:"Coringa"});
   }
-  // shuffle
   for (let i = deck.length -1; i>0; i--){
     const j = Math.floor(Math.random()*(i+1));
     [deck[i], deck[j]] = [deck[j], deck[i]];
@@ -536,11 +576,9 @@ function subscribeHost(code) {
   db.ref(`games/${code}`).on('value', snap => {
     if (!snap.exists()) return;
     const data = snap.val();
-    // se status lobby, renderLobby
     if (data.status==='lobby') {
       renderHostLobby(data);
     }
-    // se ongoing
     else if (data.status==='ongoing') {
       hostLobby.classList.add('hidden');
       hostGame.classList.remove('hidden');
@@ -566,23 +604,25 @@ function startGameHost() {
 }
 
 function renderHostGame(data) {
-  // deck
+  const playersArr = Object.values(data.players||{});
+  const currentName = playersArr[data.currentPlayerIndex]?.name || '???';
+  hostStatusPanel.textContent = `É a vez de: ${currentName}`;
+
   deckCount.textContent = `Restantes: ${data.deck ? data.deck.length : 0}`;
   deckView.innerHTML = (data.deck||[]).map(() => `<div class="card-back"></div>`).join('');
-  // currentCard
+
   if (data.currentCard) {
     currentCardHost.innerHTML = renderCard(data.currentCard.rank, data.currentCard.suit);
   } else {
     currentCardHost.textContent = "Nenhuma";
   }
-  // rules
+
   if (data.rules && data.rules.length>0) {
     hostRules.innerHTML = data.rules.map(r=>`<div class="rule-item">${r}</div>`).join('');
   } else {
     hostRules.textContent = 'Nenhuma';
   }
-  // players
-  const playersArr = Object.values(data.players||{});
+
   let html = playersArr.map((p,i) => {
     const pic = p.photoURL ? `<img src="${p.photoURL}" class="player-photo"/>` : '';
     const isCurrent = (i===data.currentPlayerIndex)?' (Vez)':'';
@@ -590,12 +630,12 @@ function renderHostGame(data) {
     return `<div>${pic} <strong>${p.name}</strong>${isCurrent}${coringas}</div>`;
   }).join('');
   hostPlayersStatus.innerHTML = html;
-  // logs
+
   if (data.logs) {
     hostLog.innerHTML = data.logs.map(l=>`<div>${l}</div>`).join('');
     hostLog.scrollTop = hostLog.scrollHeight;
   }
-  // chat
+
   if (data.chat) {
     hostChat.innerHTML = data.chat.map(c => `<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
     hostChat.scrollTop = hostChat.scrollHeight;
@@ -611,7 +651,6 @@ async function drawCardHost() {
   }
   const card = data.deck[0];
   const newDeck = data.deck.slice(1);
-  // handle card effect
   handleCardEffect(card, data);
   await db.ref(`games/${gameCode}`).update({
     deck: newDeck,
@@ -649,7 +688,6 @@ function sendChatAsHost() {
 */
 function handleCardEffect(card, gameData) {
   let logs = gameData.logs || [];
-  let deck = gameData.deck || [];
   let currentIndex = gameData.currentPlayerIndex;
   let direction = gameData.direction;
   let rules = gameData.rules || [];
@@ -661,7 +699,6 @@ function handleCardEffect(card, gameData) {
 
   switch(card.rank) {
     case '4':
-      // Adiciona regra
       const newRule = prompt("Nova regra?");
       if (newRule) {
         rules.push(newRule);
@@ -669,12 +706,10 @@ function handleCardEffect(card, gameData) {
       }
       break;
     case '6':
-      // Quebra todas
       rules = [];
       logs.push("Todas as regras foram quebradas!");
       break;
     case '8':
-      // Poder do Dedo
       const pKey = Object.keys(gameData.players||{})[currentIndex];
       if (pKey) {
         db.ref(`games/${gameCode}/players/${pKey}/hasFingerPower`).set(true);
@@ -682,7 +717,6 @@ function handleCardEffect(card, gameData) {
       }
       break;
     case '9':
-      // inverte
       direction *= -1;
       logs.push("O sentido foi invertido!");
       break;
@@ -692,7 +726,6 @@ function handleCardEffect(card, gameData) {
         let ni = currentIndex + direction;
         if (ni<0) ni = playersArr.length-1;
         if (ni>=playersArr.length) ni=0;
-        // pula outro
         ni += direction;
         if (ni<0) ni = playersArr.length-1;
         if (ni>=playersArr.length) ni=0;
@@ -715,7 +748,6 @@ function handleCardEffect(card, gameData) {
       logs.push("Todos os homens bebem 1 dose!");
       break;
     case 'Joker':
-      // +1 coringa
       const jkKey = Object.keys(gameData.players||{})[currentIndex];
       if (jkKey) {
         const oldVal = playersArr[currentIndex].jokers||0;
@@ -724,9 +756,7 @@ function handleCardEffect(card, gameData) {
       }
       break;
     default:
-      // A,2,3,5,7 etc. Fica livre
-      // ex: "2" => distribua 2 doses
-      // logs.push("Distribua 2 doses!");
+      // A,2,3,5,7 etc.
   }
 
   if (passTurn && card.rank!=='10') {
@@ -740,7 +770,6 @@ function handleCardEffect(card, gameData) {
       logs
     });
   } else {
-    // só atualiza logs
     db.ref(`games/${gameCode}`).update({
       direction,
       rules,
@@ -760,7 +789,6 @@ function sendDrinkAlert(playerIndex, gameData) {
   7) MODO JOGADOR
   =========================================
 */
-// Se entrar via link ?gameId=XXXX
 (function checkUrlParam() {
   const params = new URLSearchParams(location.search);
   if (params.has('gameId')) {
@@ -801,53 +829,15 @@ function handleFilePlayerPhoto(e) {
   }
 }
 
-function openCamera() {
-  cameraOverlay.style.display='flex';
-  navigator.mediaDevices.getUserMedia({video:true})
-    .then(stream => {
-      cameraPreview.srcObject = stream;
-    })
-    .catch(err => {
-      alert("Não foi possível acessar câmera: "+err);
-      closeCamera();
-    });
-}
-
-function closeCamera() {
-  cameraOverlay.style.display='none';
-  if (cameraPreview.srcObject) {
-    cameraPreview.srcObject.getTracks().forEach(t=>t.stop());
-    cameraPreview.srcObject = null;
-  }
-}
-
-function capturePhoto() {
-  if (!cameraPreview.srcObject) return;
-  const track = cameraPreview.srcObject.getVideoTracks()[0];
-  const imageCapture = new ImageCapture(track);
-  imageCapture.takePhoto()
-    .then(blob => {
-      const url = URL.createObjectURL(blob);
-      previewPhoto.src = url;
-      previewPhoto.style.display = 'block';
-      myPhotoFile = blob; // vamos salvar esse blob p/ upload
-      closeCamera();
-    })
-    .catch(err=> alert("Erro ao capturar foto: "+err));
-}
-
 async function registerPlayerInGame() {
   if (!gameCode) return alert("Sem código de jogo!");
   const name = inputPlayerName.value.trim();
   if (!name) return alert("Digite seu nome!");
-  // Se tiver foto
   if (myPhotoFile) {
-    // upload
     const storageRef = storage.ref(`games/${gameCode}/photos/${Date.now()}`);
     await storageRef.put(myPhotoFile);
     myPhotoURL = await storageRef.getDownloadURL();
   }
-
   const playersRef = db.ref(`games/${gameCode}/players`).push();
   myPlayerKey = playersRef.key;
   await playersRef.set({
@@ -858,7 +848,6 @@ async function registerPlayerInGame() {
   });
 
   playerRegister.classList.add('hidden');
-  // ouvir partida
   db.ref(`games/${gameCode}`).on('value', snap => {
     if (!snap.exists()) return;
     const data = snap.val();
@@ -870,7 +859,6 @@ function updatePlayerView(gameData) {
   if (gameData.status==='lobby') {
     playerLobby.classList.remove('hidden');
     playerGame.classList.add('hidden');
-    // listar
     const arr = Object.values(gameData.players||{});
     playerLobbyList.innerHTML = arr.map(p=>{
       const pic = p.photoURL ? `<img src="${p.photoURL}" class="player-photo" />`:'';
@@ -880,7 +868,7 @@ function updatePlayerView(gameData) {
   else if (gameData.status==='ongoing') {
     playerLobby.classList.add('hidden');
     playerGame.classList.remove('hidden');
-    // exibir info
+
     const pObj = gameData.players[myPlayerKey];
     if (!pObj) {
       playerInfo.textContent = "Você não está no jogo?";
@@ -888,27 +876,37 @@ function updatePlayerView(gameData) {
     } else {
       playerInfo.textContent = `Olá, ${pObj.name} | Coringas: ${pObj.jokers||0}`;
     }
-    // carta
+
+    const arr = Object.values(gameData.players||{});
+    const currentName = arr[gameData.currentPlayerIndex]?.name || '???';
+    if (Object.keys(gameData.players||{})[gameData.currentPlayerIndex]===myPlayerKey) {
+      playerStatusPanel.classList.remove('hidden');
+      playerStatusPanel.style.color = "#28a745";
+      playerStatusPanel.textContent = "É A SUA VEZ!";
+    } else {
+      playerStatusPanel.classList.remove('hidden');
+      playerStatusPanel.style.color = "#007BFF";
+      playerStatusPanel.textContent = `É a vez de: ${currentName}`;
+    }
+
     if (gameData.currentCard) {
       currentCardPlayer.innerHTML = renderCard(gameData.currentCard.rank, gameData.currentCard.suit);
     } else {
       currentCardPlayer.textContent = "Nenhuma";
     }
-    // regras
+
     if (gameData.rules && gameData.rules.length>0) {
       playerRules.innerHTML = gameData.rules.map(r=>`<div class="rule-item">${r}</div>`).join('');
     } else {
       playerRules.innerHTML = 'Nenhuma';
     }
-    // coringa
+
     btnUseJoker.style.display = (pObj.jokers>0) ? 'inline-block':'none';
-    // poder do dedo
     btnActivateFinger.style.display = pObj.hasFingerPower ? 'inline-block':'none';
-    // fingerPower global
+
     const fp = gameData.fingerPower||{};
     if (fp.active) {
       fingerBox.classList.remove('hidden');
-      // se já cliquei
       const found = (fp.queue||[]).find(x=>x.playerKey===myPlayerKey);
       if (found) {
         btnFingerClick.disabled = true;
@@ -921,17 +919,17 @@ function updatePlayerView(gameData) {
     } else {
       fingerBox.classList.add('hidden');
     }
-    // logs
+
     if (gameData.logs) {
       playerLog.innerHTML = gameData.logs.map(l=>`<div>${l}</div>`).join('');
       playerLog.scrollTop = playerLog.scrollHeight;
     }
-    // chat
+
     if (gameData.chat) {
       playerChat.innerHTML = gameData.chat.map(c => `<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
       playerChat.scrollTop = playerChat.scrollHeight;
     }
-    // needsToDrink?
+
     if (pObj.needsToDrink) {
       alert("Você precisa beber!");
       db.ref(`games/${gameCode}/players/${myPlayerKey}/needsToDrink`).remove();
@@ -944,7 +942,7 @@ function updatePlayerView(gameData) {
 
 /*
   =========================================
-  8) JOGADOR - CORINGA, PODER DO DEDO, ETC.
+  8) CORINGA, PODER DO DEDO
   =========================================
 */
 function useJokerPlayer() {
@@ -979,23 +977,20 @@ function fingerClick() {
   });
 }
 
-// Exemplo de "finalizar finger power" - poderia rodar no Host com timer
 function finalizeFingerPower() {
   db.ref(`games/${gameCode}/fingerPower`).once('value', snap => {
     const fp = snap.val();
     if (!fp || !fp.queue||fp.queue.length===0) return;
     const last = fp.queue[fp.queue.length-1];
     addLog(`O último a clicar foi ${last.name}, então ele bebe!`);
-    // mandar esse player beber
     db.ref(`games/${gameCode}/players/${last.playerKey}/needsToDrink`).set(Date.now());
-    // desativa
     db.ref(`games/${gameCode}/fingerPower`).update({ active:false, queue:[]});
   });
 }
 
 /*
   =========================================
-  9) GRAVAÇÃO DE VÍDEO (PLAYER)
+  9) GRAVAÇÃO DE VÍDEO
   =========================================
 */
 async function startVideoRecording() {
@@ -1016,7 +1011,6 @@ async function startVideoRecording() {
   mediaRecorder.onstop = async ()=>{
     if (recordedChunks.length>0) {
       const blob = new Blob(recordedChunks, {type:'video/mp4'});
-      // upload
       const ref = storage.ref(`games/${gameCode}/videos/${Date.now()}.mp4`);
       await ref.put(blob);
       const url = await ref.getDownloadURL();
@@ -1036,15 +1030,11 @@ function stopVideoRecording() {
 
 function closeVideoOverlay() {
   videoOverlay.style.display='none';
-  stopVideoStream();
-}
-
-function stopVideoStream() {
   if (localCameraStream) {
     localCameraStream.getTracks().forEach(t=>t.stop());
     localCameraStream=null;
   }
-  videoPreview.srcObject = null;
+  videoPreview.srcObject=null;
 }
 
 /*
@@ -1075,6 +1065,20 @@ function addLog(msg) {
     db.ref(`games/${gameCode}/logs`).set(arr);
   });
 }
+
+/* Ao carregar a página, se tiver gameId na URL, pular pro join */
+(function checkUrlParam() {
+  const params = new URLSearchParams(location.search);
+  if (params.has('gameId')) {
+    const code = params.get('gameId');
+    if (code) {
+      modeSelect.classList.add('hidden');
+      playerArea.classList.remove('hidden');
+      inputGameCodePlayer.value = code;
+      enterCodePlayer();
+    }
+  }
+})();
 </script>
 </body>
 </html>
