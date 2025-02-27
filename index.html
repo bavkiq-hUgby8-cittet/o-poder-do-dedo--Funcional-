@@ -1,503 +1,189 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>O Poder do Dedo - Versão 2.0</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Firebase (compat) -->
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-storage-compat.js"></script>
-
-  <!-- QRCode lib -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <meta charset="UTF-8">
+  <title>O Poder do Dedo - Versão Responsiva</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- Font Awesome -->
+  <!-- Firebase, QRCode, Font Awesome e Google Fonts podem ser incluídos conforme necessidade -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+  
   <style>
-    /* ESTILIZAÇÃO BASE E RESET */
+    /* RESET E CONFIGURAÇÕES BASE */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --primary: #6200EA;
-      --primary-light: #7C4DFF;
       --primary-dark: #4A148C;
-      --secondary: #FF3D00;
-      --success: #00C853;
-      --danger: #F50057;
-      --warning: #FFD600;
-      --info: #00B8D4;
-      --dark: #263238;
-      --light: #ECEFF1;
       --white: #ffffff;
-      --card-red: #E53935;
-      --card-black: #212121;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
-      --shadow-md: 0 3px 6px rgba(0,0,0,0.16);
-      --shadow-lg: 0 10px 20px rgba(0,0,0,0.19);
-      --transition-fast: all 0.2s ease;
-      --transition-normal: all 0.3s ease;
+      --light: #ECEFF1;
       --font-heading: 'Montserrat', sans-serif;
       --font-body: 'Poppins', sans-serif;
-      --border-radius-sm: 4px;
       --border-radius-md: 8px;
-      --border-radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --transition-fast: all 0.2s ease;
     }
     body, html {
-      width: 100%; height: 100%;
+      width: 100%; 
+      height: 100%;
       background: var(--light);
       font-family: var(--font-body);
-      display: flex; flex-direction: column; align-items: center;
-      color: var(--dark);
-      overflow: hidden;
+      overflow-x: hidden;
     }
+    
+    /* CONTAINER PRINCIPAL */
     #mainContainer {
-      width: 100%; height: 100vh;
-      max-width: 1920px;
-      margin: 0 auto;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-      box-shadow: var(--shadow-lg);
-      display: flex; flex-direction: column; overflow: hidden;
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
+    
+    /* BARRA DE NAVEGAÇÃO */
     .navbar {
-      background: var(--primary); color: var(--white);
-      display: flex; align-items: center;
+      background: var(--primary);
+      color: var(--white);
       padding: 12px 20px;
       box-shadow: var(--shadow-sm);
-      z-index: 10;
     }
     .navbar h1 {
       font-family: var(--font-heading);
-      font-size: 1.5rem; flex-grow: 1; font-weight: 700;
+      font-size: 1.5rem;
     }
-    .logo-icon { margin-right: 10px; font-size: 1.8rem; }
-    #contentScroll {
-      flex: 1; padding: 10px;
-      display: grid; grid-template-columns: 1fr;
-      grid-template-rows: 1fr; gap: 10px; overflow: hidden;
+    
+    /* TELA DE SELEÇÃO DE MODO */
+    #modeSelect {
+      text-align: center;
+      padding: 20px;
     }
-    .section {
-      background: var(--white); border-radius: var(--border-radius-md);
-      padding: 20px; margin-bottom: 15px;
-      box-shadow: var(--shadow-sm); transition: var(--transition-normal);
-      border-top: 4px solid var(--primary);
-    }
-    .section:hover { box-shadow: var(--shadow-md); }
-    .title {
-      font-family: var(--font-heading);
-      text-align: center; font-weight: 600;
-      margin-bottom: 15px; color: var(--primary-dark);
-      font-size: 1.2rem;
-    }
-    button {
-      padding: 10px 16px; border: none;
+    .mode-card {
+      display: inline-block;
+      background: var(--white);
       border-radius: var(--border-radius-md);
-      margin: 5px 0; cursor: pointer;
-      font-size: 1rem; font-family: var(--font-body); font-weight: 500;
-      transition: var(--transition-fast); display: inline-flex;
-      align-items: center; justify-content: center;
+      padding: 15px 20px;
+      margin: 10px;
       box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: var(--transition-fast);
     }
-    button:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    button i { margin-right: 8px; }
-    .btn-dark { background: var(--dark); color: var(--white); }
-    .btn-primary { background: var(--primary); color: var(--white); }
-    .btn-success { background: var(--success); color: var(--white); }
-    .btn-danger { background: var(--danger); color: var(--white); }
-    .btn-warning { background: var(--warning); color: var(--dark); }
-    .btn-info { background: var(--info); color: var(--white); }
-    .btn-lg { width: 100%; padding: 14px 20px; font-size: 1.1rem; margin: 8px 0; }
-    .hidden { display: none !important; }
-    /* Outras classes de layout, inputs, cartas, chat etc. foram mantidas conforme a versão original */
+    .mode-card:hover { transform: translateY(-3px); }
+    
+    /* ÁREA DO JOGO DO ORGANIZADOR */
+    #hostGameContainer {
+      flex: 1;
+      display: none; /* inicialmente escondido */
+      flex-direction: column;
+      padding: 10px;
+      gap: 10px;
+    }
+    
+    /* Painel central de controle */
+    #gameControlPanel {
+      background: var(--white);
+      border-radius: var(--border-radius-md);
+      padding: 15px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+    
+    /* Painel de status e narração */
+    #currentTurnPanel {
+      width: 100%;
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    #narrationPanel {
+      font-style: italic;
+      color: var(--primary-dark);
+      margin-top: 5px;
+    }
+    
+    /* Botões de ação central */
+    #controlButtons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      align-items: center;
+    }
+    
+    /* Painel de histórico com scroll */
+    #historyPanel {
+      background: var(--white);
+      border-radius: var(--border-radius-md);
+      padding: 10px;
+      box-shadow: var(--shadow-sm);
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    
+    /* RESPONSIVIDADE */
+    @media (max-width: 768px) {
+      #historyPanel { max-height: 100px; }
+      .navbar h1 { font-size: 1.2rem; }
+    }
   </style>
 </head>
-
 <body>
   <div id="mainContainer">
-    <!-- Barra de navegação -->
+    <!-- Barra de Navegação -->
     <div class="navbar">
-      <h1><i class="fas fa-hand-point-up logo-icon"></i> O Poder do Dedo</h1>
+      <h1><i class="fas fa-hand-point-up"></i> O Poder do Dedo</h1>
     </div>
     
-    <div id="contentScroll">
-      <!-- Tela de seleção de modo -->
-      <div id="modeSelect" class="section">
-        <div class="title">Escolha seu modo de jogo</div>
-        <div class="mode-selection">
-          <div id="hostCard" class="mode-card">
-            <div class="mode-card-header">
-              <h3>Organizador</h3>
-            </div>
-            <div class="mode-card-body">
-              <i class="fas fa-user-cog mode-card-icon"></i>
-              <p>Crie e gerencie uma nova partida</p>
-              <button id="btnHost" class="btn-dark btn-lg">
-                <i class="fas fa-crown"></i> Ser Organizador
-              </button>
-            </div>
-          </div>
-          <div id="playerCard" class="mode-card">
-            <div class="mode-card-header">
-              <h3>Jogador</h3>
-            </div>
-            <div class="mode-card-body">
-              <i class="fas fa-gamepad mode-card-icon"></i>
-              <p>Participe de uma partida existente</p>
-              <button id="btnPlayer" class="btn-primary btn-lg">
-                <i class="fas fa-play"></i> Ser Jogador
-              </button>
-            </div>
-          </div>
+    <!-- Tela de Seleção de Modo -->
+    <div id="modeSelect">
+      <h2>Escolha seu modo</h2>
+      <div class="mode-card" id="hostCard">Organizador</div>
+      <div class="mode-card" id="playerCard">Jogador</div>
+    </div>
+    
+    <!-- Área do Jogo do Organizador -->
+    <div id="hostGameContainer">
+      <!-- Painel Central: Controles e Narração -->
+      <div id="gameControlPanel">
+        <div id="currentTurnPanel">
+          <span id="hostStatusPanel">É a vez de: [Nome]</span>
+          <div id="narrationPanel">Narração: Aguardando ação...</div>
+        </div>
+        <div id="controlButtons">
+          <div id="currentCardHost">Nenhuma carta jogada ainda</div>
+          <button id="btnDrawCard" class="btn-warning">Puxar Carta</button>
+          <!-- Outros botões (ex.: Novo Baralho, Ativar Poder do Dedo) podem ser inseridos dinamicamente -->
         </div>
       </div>
-
-      <!-- Áreas do Organizador e do Jogador (as demais telas permanecem praticamente inalteradas) -->
-      <!-- ... (código da interface do host e do player permanece similar à versão original) ... -->
-    </div>
-  </div>
-
-  <!-- OVERLAY DE VÍDEO -->
-  <div id="videoOverlay" class="hidden">
-    <h3><i class="fas fa-video"></i> Gravação de Vídeo</h3>
-    <video id="videoPreview" autoplay muted playsinline></video>
-    <div style="margin-top: 20px; display: flex; gap: 10px;">
-      <button id="btnStartRecording" class="btn-success">
-        <i class="fas fa-play"></i> Iniciar
-      </button>
-      <button id="btnStopRecording" class="btn-danger">
-        <i class="fas fa-stop"></i> Parar
-      </button>
-      <button id="btnCloseVideoOverlay" class="btn-dark">
-        <i class="fas fa-times"></i> Fechar
-      </button>
-    </div>
-  </div>
-
-<script>
-/********** CONFIGURAÇÃO DO FIREBASE **********/
-const firebaseConfig = {
-  apiKey: "AIzaSyBQ5czr0wUqNxyqU9X_WHO3DrHOYEAPf7M",
-  authDomain: "opoderdodedo.firebaseapp.com",
-  databaseURL: "https://opoderdodedo-default-rtdb.firebaseio.com",
-  projectId: "opoderdodedo",
-  storageBucket: "opoderdodedo.firebasestorage.app",
-  messagingSenderId: "931089125837",
-  appId: "1:931089125837:web:fa22ae36bd206f28cf7484",
-  measurementId: "G-6YE1KQ0VQC"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const storage = firebase.storage();
-
-/********** ELEMENTOS DO DOM **********/
-// Seleção de modo
-const modeSelect = document.getElementById('modeSelect');
-const btnHost = document.getElementById('btnHost');
-const btnPlayer = document.getElementById('btnPlayer');
-const hostCard = document.getElementById('hostCard');
-const playerCard = document.getElementById('playerCard');
-
-// (Os demais elementos – telas, botões, inputs – são obtidos conforme a versão original)
-// ...
-// Variáveis globais
-let gameCode = null, myPlayerKey = null;
-let localCameraStream = null, mediaRecorder = null, recordedChunks = [];
-
-/********** EVENTOS DE SELEÇÃO DE MODO **********/
-hostCard.onclick = () => { modeSelect.classList.add('hidden'); /* Exibe área do host */ };
-playerCard.onclick = () => { modeSelect.classList.add('hidden'); /* Exibe área do jogador */ };
-btnHost.onclick = () => { modeSelect.classList.add('hidden'); /* Exibe área do host */ };
-btnPlayer.onclick = () => { modeSelect.classList.add('hidden'); /* Exibe área do jogador */ };
-
-/********** FUNÇÕES DE HOST **********/
-async function createGameAsHost(){
-  btnCreateGame.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
-  btnCreateGame.disabled = true;
-  gameCode = generateGameCode();
-  const deck = generateDeck();
-  const initialData = {
-    status: 'lobby',
-    players: {},
-    deck,
-    currentCard: null,
-    currentPlayerIndex: 0,
-    direction: 1,
-    rules: [],
-    logs: [],
-    fingerPower: { active: false, owner: null, queue: [] },
-    chat: []
-  };
-  try {
-    await db.ref(`games/${gameCode}`).set(initialData);
-    showHostLobby(gameCode);
-    subscribeHost(gameCode);
-  } catch(error) {
-    alert("Erro ao criar partida: " + error.message);
-  } finally {
-    btnCreateGame.innerHTML = '<i class="fas fa-plus-circle"></i> Criar Nova Partida';
-    btnCreateGame.disabled = false;
-  }
-}
-  
-async function joinGameAsHost(){
-  // Verificação e ingresso na partida para o host
-  // (Código similar à versão anterior)
-}
-  
-function showHostLobby(code){
-  // Exibe tela de lobby, gera QRCode etc.
-}
-  
-function subscribeHost(code){
-  db.ref(`games/${code}`).on('value', snap => {
-    if(!snap.exists()) return;
-    const data = snap.val();
-    if(data.status === 'lobby'){
-      renderHostLobby(data);
-    } else if(data.status === 'ongoing'){
-      hostLobby.classList.add('hidden');
-      hostGame.classList.remove('hidden');
-      renderHostGame(data);
-    } else if(data.status === 'finished'){
-      alert("Partida Encerrada!");
-      // Limpa os dados do localStorage para evitar cache da partida anterior
-      localStorage.removeItem("opoderdedo_gameId");
-      localStorage.removeItem("opoderdedo_playerKey");
-      localStorage.removeItem("opoderdedo_playerName");
-      location.reload();
-    }
-  });
-}
-  
-function renderHostLobby(data){
-  // Renderiza a lista de jogadores e ativa/desativa o botão de iniciar partida conforme quantidade
-}
-  
-function renderHostGame(data){
-  // Atualiza status, cartas, regras, chat, etc.
-  // Se o baralho estiver vazio, desabilita o botão de "Puxar Carta" e insere um botão "Novo Baralho":
-  if(!data.deck || data.deck.length === 0){
-    btnDrawCard.disabled = true;
-    btnDrawCard.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Baralho vazio';
-    if(!document.getElementById('btnNewDeck')){
-      const btnNewDeck = document.createElement('button');
-      btnNewDeck.id = 'btnNewDeck';
-      btnNewDeck.className = 'btn-primary btn-lg';
-      btnNewDeck.innerHTML = '<i class="fas fa-redo"></i> Novo Baralho';
-      btnNewDeck.onclick = async () => {
-        btnNewDeck.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
-        try {
-          const newDeck = generateDeck();
-          await db.ref(`games/${gameCode}`).update({ deck: newDeck });
-          addLog("Novo baralho gerado.");
-          btnNewDeck.remove();
-        } catch(error) {
-          alert("Erro ao gerar novo baralho: " + error.message);
-          btnNewDeck.innerHTML = '<i class="fas fa-redo"></i> Novo Baralho';
-        }
-      };
-      btnDrawCard.parentNode.insertBefore(btnNewDeck, btnDrawCard.nextSibling);
-    }
-  } else {
-    btnDrawCard.disabled = false;
-    btnDrawCard.innerHTML = '<i class="fas fa-hand-paper"></i> Puxar Carta';
-    const btnNewDeck = document.getElementById('btnNewDeck');
-    if(btnNewDeck) btnNewDeck.remove();
-  }
-  // Se o poder do dedo estiver ativo, insere um botão "Finalizar Poder do Dedo" para o host
-  if(data.fingerPower && data.fingerPower.active && !document.getElementById('btnFinalizeFinger')){
-    const btnFinalizeFinger = document.createElement('button');
-    btnFinalizeFinger.id = 'btnFinalizeFinger';
-    btnFinalizeFinger.className = 'btn-danger';
-    btnFinalizeFinger.innerHTML = '<i class="fas fa-stop-circle"></i> Finalizar Poder do Dedo';
-    btnFinalizeFinger.onclick = finalizeFingerPower;
-    btnEndGame.parentNode.insertBefore(btnFinalizeFinger, btnEndGame);
-  } else if(data.fingerPower && !data.fingerPower.active){
-    const btnFinalizeFinger = document.getElementById('btnFinalizeFinger');
-    if(btnFinalizeFinger) btnFinalizeFinger.remove();
-  }
-  // Outras atualizações (status, chat, eventos) permanecem conforme a versão anterior.
-}
-  
-async function drawCardHost(){
-  // Ao puxar a carta, se o baralho não estiver vazio, atualiza a partida conforme o efeito da carta
-}
-  
-function endGameHost(){
-  if(confirm("Tem certeza que deseja encerrar a partida?")){
-    db.ref(`games/${gameCode}`).update({ status: 'finished' })
-      .catch(error => alert("Erro ao encerrar partida: " + error.message));
-  }
-}
-  
-function sendChatAsHost(){
-  // Envio de mensagem pelo host
-}
-  
-/********** EFEITOS DE CARTA **********/
-function handleCardEffect(card, gameData){
-  // Dependendo do valor da carta (por exemplo, '8' ativa o poder do dedo, 'Joker' aumenta o contador de coringas etc.)
-  // O código já existente trata os efeitos; certifique-se de que quando a carta '8' é puxada,
-  // o respectivo jogador tem seu atributo "hasFingerPower" setado e o botão "Ativar Poder do Dedo" apareça na tela do jogador.
-  // Ao usar o poder (via activateFingerPower) ou o coringa (via useJokerPlayer), os botões deverão ser acionados.
-}
-  
-function sendDrinkAlert(playerIndex, gameData){
-  // Função que sinaliza que o jogador precisa beber.
-}
-  
-/********** FUNÇÕES DO JOGADOR **********/
-function enterCodePlayer(){
-  // Verifica código da partida e, se válido, exibe tela de registro
-}
-  
-async function registerPlayerInGame(){
-  // Registra jogador na partida, guarda dados no localStorage e inscreve para atualizações
-}
-  
-function updatePlayerView(gameData){
-  // Atualiza a interface do jogador de acordo com o status da partida.
-  // Se o jogador tiver o poder do dedo (hasFingerPower true) ou coringas disponíveis,
-  // os botões btnActivateFinger e btnUseJoker são exibidos.
-  if(gameData.status === 'finished'){
-    alert("Esta partida foi encerrada!");
-    localStorage.removeItem("opoderdedo_gameId");
-    localStorage.removeItem("opoderdedo_playerKey");
-    localStorage.removeItem("opoderdedo_playerName");
-    setTimeout(() => location.reload(), 1000);
-    return;
-  }
-  // Outras atualizações: cartas, chat, lista de jogadores, status etc.
-}
-  
-async function drawCardPlayer(){
-  // Lógica de puxar carta para o jogador; se não for sua vez ou o baralho estiver vazio, exibe alerta.
-}
-  
-function useJokerPlayer(){
-  // Se o jogador tiver coringas, permite seu uso via botão clicável
-}
-  
-function activateFingerPower(){
-  // Ao clicar no botão, o jogador ativa o poder do dedo. Isso atualiza o objeto "fingerPower" no banco
-  // e desativa o botão (para evitar cliques múltiplos).
-  const name = localStorage.getItem("opoderdedo_playerName") || 'Jogador';
-  db.ref(`games/${gameCode}/fingerPower`).set({
-    active: true,
-    owner: myPlayerKey,
-    queue: [{ playerKey: myPlayerKey, name }]
-  });
-  db.ref(`games/${gameCode}/players/${myPlayerKey}/hasFingerPower`).set(false);
-  addLog(`👆 ${name} ativou o Poder do Dedo!`);
-  setTimeout(() => {
-    btnActivateFinger.style.display = 'none';
-    btnActivateFinger.innerHTML = '<i class="fas fa-hand-point-up"></i> Poder do Dedo (8)';
-  }, 500);
-}
-  
-function fingerClick(){
-  // Quando o jogador clica durante o poder do dedo, seu clique é registrado na fila.
-  db.ref(`games/${gameCode}/fingerPower/queue`).once('value', snap => {
-    let arr = snap.val() || [];
-    if(arr.find(x => x.playerKey === myPlayerKey)) return;
-    const name = localStorage.getItem("opoderdedo_playerName") || 'Jogador';
-    arr.push({ playerKey: myPlayerKey, name });
-    db.ref(`games/${gameCode}/fingerPower/queue`).set(arr)
-      .then(() => { btnFingerClick.innerHTML = '<i class="fas fa-check-circle"></i> Você já clicou!'; })
-      .catch(error => { alert("Erro ao registrar clique: " + error.message); btnFingerClick.disabled = false; });
-  });
-}
-  
-function finalizeFingerPower(){
-  // Função chamada pelo host para finalizar o poder do dedo: o último a clicar é identificado e deve beber.
-  db.ref(`games/${gameCode}/fingerPower`).once('value', snap => {
-    const fp = snap.val();
-    if(!fp || !fp.queue || fp.queue.length === 0) return;
-    const last = fp.queue[fp.queue.length - 1];
-    addLog(`⏱️ O último a clicar foi ${last.name}, beba!`);
-    db.ref(`games/${gameCode}/players/${last.playerKey}/needsToDrink`).set(Date.now());
-    db.ref(`games/${gameCode}/fingerPower`).update({ active: false, queue: [] });
-  });
-}
-  
-/********** GRAVAÇÃO DE VÍDEO **********/
-async function startVideoRecording(){
-  // Inicia a gravação de vídeo usando a câmera
-}
-  
-function stopVideoRecording(){
-  // Encerra a gravação e salva o vídeo no Firebase Storage
-}
-  
-function closeVideoOverlay(){
-  // Fecha a overlay de vídeo e para a câmera
-}
-  
-function sendChatAsPlayer(){
-  // Envia mensagem de chat pelo jogador
-}
-  
-function addLog(msg){
-  // Adiciona um log ao array de logs da partida no banco
-  db.ref(`games/${gameCode}/logs`).once('value', snap => {
-    let arr = snap.val() || [];
-    arr.push(msg);
-    db.ref(`games/${gameCode}/logs`).set(arr);
-  });
-}
-  
-function generateGameCode(){
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-  
-function generateDeck(){
-  const suits = ["♥","♦","♣","♠"];
-  const ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
-  let deck = [];
-  for(let s of suits){ for(let r of ranks){ deck.push({ rank: r, suit: s }); } }
-  // Adiciona coringas
-  for(let i = 0; i < 3; i++){
-    deck.push({ rank: 'Joker', suit: 'Coringa' });
-  }
-  // Embaralha
-  for(let i = deck.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-  return deck;
-}
-  
-function renderCard(rank, suit){
-  if(rank === 'Joker'){
-    return `
-      <div class="card-front" style="background: linear-gradient(135deg, #ffd700 0%, #f9a825 100%);">
-        <div class="card-center-symbol" style="font-size: 1.8rem; color: var(--dark);">
-          <i class="fas fa-crown"></i><br>
-          <span style="font-size: 1rem;">CORINGA</span>
+      <!-- Painel de Histórico -->
+      <div id="historyPanel">
+        <div id="hostPainel">
+          <!-- Eventos do jogo serão listados aqui -->
+          <p>Histórico de eventos...</p>
         </div>
       </div>
-    `;
-  }
-  const isRed = (suit === '♥' || suit === '♦');
-  const suitSymbol = suit === '♥' ? '♥️' : suit === '♦' ? '♦️' : suit === '♣' ? '♣️' : '♠️';
-  return `
-    <div class="card-front">
-      <div class="card-rank-suit ${isRed ? 'red' : 'black'}">
-        ${rank}${suitSymbol}
-      </div>
-      <div class="card-center-symbol ${isRed ? 'red' : 'black'}">
-        ${rank}<br>${suitSymbol}
-      </div>
     </div>
-  `;
-}
-</script>
+  </div>
+  
+  <script>
+    // Exemplo simples de transição para a tela do Organizador
+    document.getElementById('hostCard').addEventListener('click', function() {
+      document.getElementById('modeSelect').style.display = 'none';
+      document.getElementById('hostGameContainer').style.display = 'flex';
+      // Atualiza status e narração para demonstração:
+      document.getElementById('hostStatusPanel').innerText = "É a vez de: Organizador";
+      updateNarration("Carta 4: Organizador definiu a regra 'Não falar'!");
+      // Exemplo de evento no histórico:
+      document.getElementById('hostPainel').innerHTML = "<p>Organizador puxou carta 4 e definiu a regra 'Não falar'</p>";
+    });
+    
+    // Função para atualizar a narração no painel central
+    function updateNarration(message) {
+      document.getElementById('narrationPanel').innerText = "Narração: " + message;
+    }
+  </script>
+  
+  <!-- Font Awesome JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </body>
 </html>
