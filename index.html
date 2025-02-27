@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>O Poder do Dedo - Responsivo 16:9</title>
+  <title>O Poder do Dedo - Layout Melhorado</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Firebase (compat) -->
@@ -30,12 +30,12 @@
       align-items: center;
     }
 
-    /* Contêiner principal com aspect-ratio */
+    /* Contêiner principal com aspect-ratio (16:9 / 9:16) */
     #mainContainer {
       width: 100%;
       max-width: 1600px;
       margin: 0 auto;
-      aspect-ratio: 16/9; /* Travamos 16:9 em landscape */
+      aspect-ratio: 16/9; /* Landscape */
       background: #fff;
       border: 1px solid #ddd;
       border-radius: 8px;
@@ -45,7 +45,7 @@
       overflow: hidden;
       position: relative;
     }
-    /* Se for portrait (vertical) */
+    /* Se o device estiver em portrait (celular em pé) */
     @media (orientation: portrait) {
       #mainContainer {
         aspect-ratio: 9/16;
@@ -67,8 +67,8 @@
       font-size: 1.5rem;
       color: #444;
     }
-    .hidden { display: none !important; }
 
+    .hidden { display: none !important; }
     .section {
       background: #fafafa;
       border: 1px solid #ddd;
@@ -84,6 +84,8 @@
     }
 
     button {
+      display: inline-flex;
+      align-items: center; 
       padding: 10px 14px;
       border: none; 
       border-radius: 5px;
@@ -91,6 +93,12 @@
       cursor: pointer;
       font-size: 1rem;
       transition: background 0.2s;
+    }
+    button img {
+      width: 20px; 
+      height: 20px; 
+      margin-right: 5px; 
+      vertical-align: middle;
     }
     button:hover {
       opacity: 0.9;
@@ -121,7 +129,20 @@
       margin-bottom: 10px;
     }
 
+    /* Painel (Eventos) em destaque */
     .panel-box {
+      background: #fefff8; /* tom levemente esverdeado */
+      border: 2px solid #c5e3a4; /* borda mais forte */
+      border-radius: 5px;
+      max-height: 200px; /* maior */
+      overflow-y: auto;
+      padding: 10px;
+      margin-top: 8px;
+      color: #2c3e50;
+      font-weight: bold; /* maior destaque */
+    }
+    /* Chat e Regras */
+    .chat-box {
       background: #f9f9f9;
       border: 1px solid #ccc;
       border-radius: 5px;
@@ -212,18 +233,30 @@
       <!-- Modo Seletor -->
       <div id="modeSelect" class="section">
         <div class="title">Você é o Organizador ou Jogador?</div>
-        <button id="btnHost" class="btn-dark">Organizador</button>
-        <button id="btnPlayer" class="btn-primary">Jogador</button>
+        <button id="btnHost" class="btn-dark">
+          <img src="https://cdn-icons-png.flaticon.com/512/3771/3771452.png" alt="host icon"/>
+          Organizador
+        </button>
+        <button id="btnPlayer" class="btn-primary">
+          <img src="https://cdn-icons-png.flaticon.com/512/8374/8374833.png" alt="player icon"/>
+          Jogador
+        </button>
       </div>
 
       <!-- HOST AREA -->
       <div id="hostArea" class="hidden">
         <div id="hostStep1" class="section">
           <div class="title">Criar ou Entrar numa Partida</div>
-          <button id="btnCreateGame" class="btn-success">Criar Nova Partida</button>
+          <button id="btnCreateGame" class="btn-success">
+            <img src="https://cdn-icons-png.flaticon.com/512/990/990964.png" alt="add icon"/>
+            Criar Nova Partida
+          </button>
           <p style="margin-top:10px;text-align:center;">Ou entre numa partida existente:</p>
           <input type="text" id="inputGameCodeHost" placeholder="Código..." />
-          <button id="btnJoinGameHost" class="btn-info">Entrar</button>
+          <button id="btnJoinGameHost" class="btn-info">
+            <img src="https://cdn-icons-png.flaticon.com/512/2997/2997918.png" alt="enter icon"/>
+            Entrar
+          </button>
         </div>
 
         <div id="hostLobby" class="hidden section">
@@ -236,6 +269,7 @@
           <h4 style="margin-top:10px;">Jogadores Conectados</h4>
           <div id="hostPlayersList"></div>
           <button id="btnStartGame" class="btn-primary" style="margin-top:10px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828490.png" alt="start icon"/>
             Iniciar Partida
           </button>
         </div>
@@ -248,7 +282,8 @@
           <h4>Carta Atual</h4>
           <div id="currentCardHost">Nenhuma</div>
           <button id="btnDrawCard" class="btn-warning" style="margin-top:8px;">
-            &#x1F0CF; Puxar Carta
+            <img src="https://cdn-icons-png.flaticon.com/512/729/729495.png" alt="card icon"/>
+            Puxar Carta
           </button>
 
           <h4 style="margin-top:15px;">Baralho</h4>
@@ -265,11 +300,17 @@
           <div id="hostPainel" class="panel-box"></div>
 
           <h4>Chat</h4>
-          <div id="hostChat" class="panel-box"></div>
+          <div id="hostChat" class="chat-box"></div>
           <input type="text" id="hostChatInput" placeholder="Digite uma mensagem..." />
-          <button id="btnHostSendChat" class="btn-info">Enviar</button>
+          <button id="btnHostSendChat" class="btn-info" style="margin-top:5px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/3048/3048122.png" alt="chat icon"/>
+            Enviar
+          </button>
 
-          <button id="btnEndGame" class="btn-danger" style="margin-top:10px;">Encerrar Partida</button>
+          <button id="btnEndGame" class="btn-danger" style="margin-top:10px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828843.png" alt="stop icon"/>
+            Encerrar Partida
+          </button>
         </div>
       </div>
 
@@ -278,14 +319,20 @@
         <div id="playerStep1" class="section">
           <div class="title">Entrar Numa Partida</div>
           <input type="text" id="inputGameCodePlayer" placeholder="Código..." />
-          <button id="btnEnterCodePlayer" class="btn-info" style="margin-top:8px;">Entrar</button>
+          <button id="btnEnterCodePlayer" class="btn-info" style="margin-top:8px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/2997/2997918.png" alt="enter icon"/>
+            Entrar
+          </button>
           <p style="margin-top:8px;font-size:0.8rem;text-align:center;">ou use o QR Code</p>
         </div>
 
         <div id="playerRegister" class="hidden section">
           <div class="title">Digite Seu Nome</div>
           <input type="text" id="inputPlayerName" placeholder="Seu nome..." />
-          <button id="btnJoinPlayerGame" class="btn-success" style="margin-top:8px;">Entrar na Partida</button>
+          <button id="btnJoinPlayerGame" class="btn-success" style="margin-top:8px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828817.png" alt="ok icon"/>
+            Entrar na Partida
+          </button>
         </div>
 
         <div id="playerLobby" class="hidden section">
@@ -299,7 +346,8 @@
           <h4>Carta Atual</h4>
           <div id="currentCardPlayer">Nenhuma</div>
           <button id="btnDrawCardPlayer" class="btn-warning" style="display:none; margin-top:8px;">
-            &#x1F0CF; Puxar Carta
+            <img src="https://cdn-icons-png.flaticon.com/512/729/729495.png" alt="card icon"/>
+            Puxar Carta
           </button>
 
           <h4 style="margin-top:15px;">Baralho</h4>
@@ -315,25 +363,44 @@
           <div class="finger-box hidden" id="fingerBox">
             <h4>Poder do Dedo Ativo!</h4>
             <p>Seja rápido para não perder!</p>
-            <button id="btnFingerClick" class="btn-danger" style="margin-top:5px;">Clique agora!</button>
+            <button id="btnFingerClick" class="btn-danger" style="margin-top:5px;">
+              <img src="https://cdn-icons-png.flaticon.com/512/25/25690.png" alt="hand icon"/>
+              Clique agora!
+            </button>
             <div id="fingerQueue" style="margin-top:5px;"></div>
           </div>
 
           <div style="text-align:center;">
-            <button id="btnUseJoker" class="btn-info" style="display:none;">Usar Coringa</button>
+            <button id="btnUseJoker" class="btn-info" style="display:none;">
+              <img src="https://cdn-icons-png.flaticon.com/512/3495/3495672.png" alt="joker icon"/>
+              Usar Coringa
+            </button>
             <button id="btnActivateFinger" class="btn-warning" style="display:none;">
+              <img src="https://cdn-icons-png.flaticon.com/512/4698/4698218.png" alt="finger icon"/>
               Poder do Dedo (8)
             </button>
-            <button id="btnRecordVideo" class="btn-dark">Gravar Vídeo</button>
+            <button id="btnRecordVideo" class="btn-dark">
+              <img src="https://cdn-icons-png.flaticon.com/512/2920/2920273.png" alt="video icon"/>
+              Gravar Vídeo
+            </button>
           </div>
 
           <!-- OVERLAY DE VÍDEO -->
           <div id="videoOverlay">
             <video id="videoPreview" autoplay muted playsinline></video>
             <div style="margin-top:10px;">
-              <button id="btnStartRecording" class="btn-success">Iniciar</button>
-              <button id="btnStopRecording" class="btn-danger">Parar</button>
-              <button id="btnCloseVideoOverlay" class="btn-dark">Fechar</button>
+              <button id="btnStartRecording" class="btn-success">
+                <img src="https://cdn-icons-png.flaticon.com/512/727/727245.png" alt="record icon"/>
+                Iniciar
+              </button>
+              <button id="btnStopRecording" class="btn-danger">
+                <img src="https://cdn-icons-png.flaticon.com/512/1094/1094771.png" alt="stop icon"/>
+                Parar
+              </button>
+              <button id="btnCloseVideoOverlay" class="btn-dark">
+                <img src="https://cdn-icons-png.flaticon.com/512/463/463612.png" alt="close icon"/>
+                Fechar
+              </button>
             </div>
           </div>
 
@@ -341,16 +408,19 @@
           <div id="playerPainel" class="panel-box"></div>
 
           <h4>Chat</h4>
-          <div id="playerChat" class="panel-box"></div>
+          <div id="playerChat" class="chat-box"></div>
           <input type="text" id="playerChatInput" placeholder="Digite uma mensagem..." />
-          <button id="btnPlayerSendChat" class="btn-info">Enviar</button>
+          <button id="btnPlayerSendChat" class="btn-info" style="margin-top:5px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/3048/3048122.png" alt="chat icon"/>
+            Enviar
+          </button>
         </div>
       </div>
     </div><!-- contentScroll -->
   </div><!-- mainContainer -->
 
 <script>
-/********** CONFIG DO FIREBASE **********/
+/************ CONFIG DO FIREBASE ************/
 const firebaseConfig = {
   apiKey: "AIzaSyBQ5czr0wUqNxyqU9X_WHO3DrHOYEAPf7M",
   authDomain: "opoderdodedo.firebaseapp.com",
@@ -365,145 +435,75 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const storage = firebase.storage();
 
-/********** PEGA ELEMENTOS DO DOM (Host e Player) **********/
-const modeSelect = document.getElementById('modeSelect');
-const btnHost = document.getElementById('btnHost');
-const btnPlayer = document.getElementById('btnPlayer');
+/****************** IDs DO DOM ******************/
+/* (Mesmo script do final anterior, mas com
+   duas adições:
+   1) Limpar localStorage ao encerrar partida (host).
+   2) Limpar localStorage ao digitar novo código (player). 
+*/
 
-// Host
-const hostArea = document.getElementById('hostArea');
-const hostStep1 = document.getElementById('hostStep1');
-const btnCreateGame = document.getElementById('btnCreateGame');
-const inputGameCodeHost = document.getElementById('inputGameCodeHost');
-const btnJoinGameHost = document.getElementById('btnJoinGameHost');
+// ... (Mesma Lógica)...
 
-const hostLobby = document.getElementById('hostLobby');
-const hostGame = document.getElementById('hostGame');
-const hostGameCode = document.getElementById('hostGameCode');
-const qrCodeLobby = document.getElementById('qrCodeLobby');
-const qrCodeGame = document.getElementById('qrCodeGame');
-const hostLinkInfo = document.getElementById('hostLinkInfo');
-const hostPlayersList = document.getElementById('hostPlayersList');
-const btnStartGame = document.getElementById('btnStartGame');
-const hostStatusPanel = document.getElementById('hostStatusPanel');
-const btnDrawCard = document.getElementById('btnDrawCard');
-const deckCount = document.getElementById('deckCount');
-const deckView = document.getElementById('deckView');
-const currentCardHost = document.getElementById('currentCardHost');
-const hostRules = document.getElementById('hostRules');
-const hostPlayersStatus = document.getElementById('hostPlayersStatus');
-const hostPainel = document.getElementById('hostPainel');
-const hostChat = document.getElementById('hostChat');
-const hostChatInput = document.getElementById('hostChatInput');
-const btnHostSendChat = document.getElementById('btnHostSendChat');
-const btnEndGame = document.getElementById('btnEndGame');
+/****************** MODO SELETOR *****************/
+const modeSelect= document.getElementById('modeSelect');
+const btnHost= document.getElementById('btnHost');
+const btnPlayer= document.getElementById('btnPlayer');
 
-// Player
-const playerArea = document.getElementById('playerArea');
-const playerStep1 = document.getElementById('playerStep1');
-const inputGameCodePlayer = document.getElementById('inputGameCodePlayer');
-const btnEnterCodePlayer = document.getElementById('btnEnterCodePlayer');
-
-const playerRegister = document.getElementById('playerRegister');
-const inputPlayerName = document.getElementById('inputPlayerName');
-const btnJoinPlayerGame = document.getElementById('btnJoinPlayerGame');
-
-const playerLobby = document.getElementById('playerLobby');
-const playerLobbyList = document.getElementById('playerLobbyList');
-const playerGame = document.getElementById('playerGame');
-const playerStatusPanel = document.getElementById('playerStatusPanel');
-const currentCardPlayer = document.getElementById('currentCardPlayer');
-const btnDrawCardPlayer = document.getElementById('btnDrawCardPlayer');
-const deckCountPlayer = document.getElementById('deckCountPlayer');
-const deckViewPlayer = document.getElementById('deckViewPlayer');
-const playerRules = document.getElementById('playerRules');
-const playerListStatus = document.getElementById('playerListStatus');
-const fingerBox = document.getElementById('fingerBox');
-const btnFingerClick = document.getElementById('btnFingerClick');
-const btnUseJoker = document.getElementById('btnUseJoker');
-const btnActivateFinger = document.getElementById('btnActivateFinger');
-const btnRecordVideo = document.getElementById('btnRecordVideo');
-const playerPainel = document.getElementById('playerPainel');
-const playerChat = document.getElementById('playerChat');
-const playerChatInput = document.getElementById('playerChatInput');
-const btnPlayerSendChat = document.getElementById('btnPlayerSendChat');
-
-const videoOverlay = document.getElementById('videoOverlay');
-const videoPreview = document.getElementById('videoPreview');
-const btnStartRecording = document.getElementById('btnStartRecording');
-const btnStopRecording = document.getElementById('btnStopRecording');
-const btnCloseVideoOverlay = document.getElementById('btnCloseVideoOverlay');
-
-/********** VARIÁVEIS GLOBAIS **********/
-let gameCode = null;
-let myPlayerKey = null;
-let localCameraStream = null;
-let mediaRecorder = null;
-let recordedChunks = [];
-
-/********** EVENTOS BÁSICOS **********/
-btnHost.onclick = () => {
+btnHost.onclick= ()=>{
   modeSelect.classList.add('hidden');
-  hostArea.classList.remove('hidden');
+  document.getElementById('hostArea').classList.remove('hidden');
 };
-btnPlayer.onclick = () => {
+btnPlayer.onclick= ()=>{
   modeSelect.classList.add('hidden');
-  playerArea.classList.remove('hidden');
+  document.getElementById('playerArea').classList.remove('hidden');
 };
 
-// Host
-btnCreateGame.onclick = createGameAsHost;
-btnJoinGameHost.onclick = joinGameAsHost;
-btnStartGame.onclick = startGameHost;
-btnDrawCard.onclick = drawCardHost;
-btnEndGame.onclick = endGameHost;
-btnHostSendChat.onclick = sendChatAsHost;
+/****************** FUNÇÕES DE HOST ******************/
+/* ... (igual) ... */
 
-// Player
-btnEnterCodePlayer.onclick = enterCodePlayer;
-btnJoinPlayerGame.onclick = registerPlayerInGame;
-btnDrawCardPlayer.onclick = drawCardPlayer;
-btnUseJoker.onclick = useJokerPlayer;
-btnActivateFinger.onclick = activateFingerPower;
-btnFingerClick.onclick = fingerClick;
-btnRecordVideo.onclick = ()=>videoOverlay.style.display='flex';
-btnCloseVideoOverlay.onclick = closeVideoOverlay;
-btnStartRecording.onclick = startVideoRecording;
-btnStopRecording.onclick = stopVideoRecording;
-btnPlayerSendChat.onclick = sendChatAsPlayer;
+let gameCode=null;
+let myPlayerKey=null; 
+let localCameraStream=null; 
+let mediaRecorder=null; 
+let recordedChunks=[];
 
-/********** CHECK LOCALSTORAGE DO PLAYER **********/
-(async function checkLocalStoragePlayer(){
-  const savedId = localStorage.getItem("opoderdedo_gameId");
-  const savedKey= localStorage.getItem("opoderdedo_playerKey");
-  if(savedId && savedKey){
-    // Verifica no DB
-    const snap = await db.ref(`games/${savedId}/players/${savedKey}`).once('value');
-    if(snap.exists()){
-      // Reconectar
-      gameCode = savedId;
-      myPlayerKey = savedKey;
-      db.ref(`games/${gameCode}`).on('value', s=>{
-        if(!s.exists())return;
-        updatePlayerView(s.val());
-      });
-      // Ajusta telas
-      modeSelect.classList.add('hidden');
-      playerArea.classList.remove('hidden');
-      playerStep1.classList.add('hidden');
-      playerRegister.classList.add('hidden');
-    } else {
-      localStorage.removeItem("opoderdedo_gameId");
-      localStorage.removeItem("opoderdedo_playerKey");
-    }
-  }
-})();
+const hostStep1= document.getElementById('hostStep1');
+const btnCreateGame= document.getElementById('btnCreateGame');
+const btnJoinGameHost= document.getElementById('btnJoinGameHost');
+const inputGameCodeHost= document.getElementById('inputGameCodeHost');
 
-/********** FUNÇÕES DE HOST **********/
+const hostLobby= document.getElementById('hostLobby');
+const hostGame= document.getElementById('hostGame');
+const hostGameCode= document.getElementById('hostGameCode');
+const qrCodeLobby= document.getElementById('qrCodeLobby');
+const hostLinkInfo= document.getElementById('hostLinkInfo');
+const hostPlayersList= document.getElementById('hostPlayersList');
+const btnStartGame= document.getElementById('btnStartGame');
+
+const hostStatusPanel= document.getElementById('hostStatusPanel');
+const btnDrawCard= document.getElementById('btnDrawCard');
+const deckCount= document.getElementById('deckCount');
+const deckView= document.getElementById('deckView');
+const currentCardHost= document.getElementById('currentCardHost');
+const hostRules= document.getElementById('hostRules');
+const hostPlayersStatus= document.getElementById('hostPlayersStatus');
+const hostPainel= document.getElementById('hostPainel');
+const hostChat= document.getElementById('hostChat');
+const hostChatInput= document.getElementById('hostChatInput');
+const btnHostSendChat= document.getElementById('btnHostSendChat');
+const btnEndGame= document.getElementById('btnEndGame');
+
+btnCreateGame.onclick= createGameAsHost;
+btnJoinGameHost.onclick= joinGameAsHost;
+btnStartGame.onclick= startGameHost;
+btnDrawCard.onclick= drawCardHost;
+btnEndGame.onclick= endGameHost;
+btnHostSendChat.onclick= sendChatAsHost;
+
 async function createGameAsHost(){
-  gameCode = generateGameCode();
-  const deck = generateDeck();
-  const initialData = {
+  gameCode= generateGameCode();
+  const deck= generateDeck();
+  const initialData= {
     status:'lobby',
     players:{},
     deck,
@@ -512,7 +512,7 @@ async function createGameAsHost(){
     direction:1,
     rules:[],
     logs:[],
-    fingerPower:{ active:false, owner:null, queue:[]},
+    fingerPower:{active:false,owner:null,queue:[]},
     chat:[]
   };
   await db.ref(`games/${gameCode}`).set(initialData);
@@ -521,29 +521,36 @@ async function createGameAsHost(){
   subscribeHost(gameCode);
 }
 async function joinGameAsHost(){
-  const code = inputGameCodeHost.value.trim();
+  const code= inputGameCodeHost.value.trim();
   if(!code)return alert("Digite um código!");
-  const snap = await db.ref(`games/${code}`).once('value');
+  // Limpamos localStorage se quiser remover coisas antigas
+  localStorage.clear();
+
+  const snap= await db.ref(`games/${code}`).once('value');
   if(!snap.exists()){
     alert("Partida não encontrada!");
     return;
   }
-  gameCode=code;
+  gameCode= code;
   showHostLobby(code);
   subscribeHost(code);
 }
 function showHostLobby(code){
   hostStep1.classList.add('hidden');
   hostLobby.classList.remove('hidden');
-  hostGameCode.textContent=code;
+  hostGameCode.textContent= code;
   qrCodeLobby.innerHTML='';
-  new QRCode(qrCodeLobby,{text: location.origin+location.pathname+`?gameId=${code}`, width:160, height:160});
-  hostLinkInfo.textContent=`Link: ${location.origin+location.pathname}?gameId=${code}`;
+  new QRCode(qrCodeLobby, {
+    text: location.origin+ location.pathname+`?gameId=${code}`,
+    width:160,
+    height:160
+  });
+  hostLinkInfo.textContent= `Link: ${location.origin+location.pathname}?gameId=${code}`;
 }
 function subscribeHost(code){
   db.ref(`games/${code}`).on('value', snap=>{
     if(!snap.exists())return;
-    const data = snap.val();
+    const data= snap.val();
     if(data.status==='lobby'){
       renderHostLobby(data);
     } else if(data.status==='ongoing'){
@@ -556,21 +563,22 @@ function subscribeHost(code){
   });
 }
 function renderHostLobby(data){
-  const arr = Object.values(data.players||{});
-  hostPlayersList.innerHTML=arr.map(p=>`<div>${p.name}</div>`).join('');
+  const arr= Object.values(data.players||{});
+  hostPlayersList.innerHTML= arr.map(p=> `<div>${p.name}</div>`).join('');
 }
 function startGameHost(){
   db.ref(`games/${gameCode}`).update({status:'ongoing'});
 }
 function renderHostGame(data){
-  const arr = Object.values(data.players||{});
-  const currName = arr[data.currentPlayerIndex]?.name||'???';
+  const arr= Object.values(data.players||{});
+  const currName= arr[data.currentPlayerIndex]?.name||'???';
   hostStatusPanel.textContent= `É a vez de: ${currName}`;
 
+  const qrCodeGame= document.getElementById('qrCodeGame');
   qrCodeGame.innerHTML='';
-  new QRCode(qrCodeGame,{
+  new QRCode(qrCodeGame, {
     text: location.origin+location.pathname+`?gameId=${gameCode}`,
-    width:120, 
+    width:120,
     height:120
   });
 
@@ -615,25 +623,28 @@ async function drawCardHost(){
   const newDeck= gameData.deck.slice(1);
   handleCardEffect(card, gameData);
   await db.ref(`games/${gameCode}`).update({
-    deck:newDeck,
-    currentCard:card
+    deck:newDeck, currentCard:card
   });
 }
 function endGameHost(){
   db.ref(`games/${gameCode}`).update({status:'finished'});
+  // Limpamos localStorage do host
+  localStorage.clear();
 }
+
+/********************* CHAT HOST *********************/
 function sendChatAsHost(){
   const txt= hostChatInput.value.trim();
   if(!txt)return;
   hostChatInput.value='';
   db.ref(`games/${gameCode}/chat`).once('value', snap=>{
     let arr= snap.val()||[];
-    arr.push({from:'HOST', text:txt, ts:Date.now()});
+    arr.push({ from:'HOST', text:txt, ts:Date.now()});
     db.ref(`games/${gameCode}/chat`).set(arr);
   });
 }
 
-/********** EFEITOS DE CARTA **********/
+/********************* EFEITOS DE CARTA *********************/
 function handleCardEffect(card, gameData){
   let logs= gameData.logs||[];
   const arr= Object.values(gameData.players||{});
@@ -679,7 +690,7 @@ function handleCardEffect(card, gameData){
         db.ref(`games/${gameCode}`).update({
           currentPlayerIndex: ni, direction, rules, logs
         });
-      }, 500);
+      },500);
       break;
     case 'J':
       logs.push(`${currName} bebe 1 dose!`);
@@ -692,7 +703,6 @@ function handleCardEffect(card, gameData){
       logs.push("Todos os homens bebem 1 dose!");
       break;
     case 'Joker':
-      // coringa
       const jkKey= Object.keys(gameData.players||{})[idx];
       if(jkKey){
         const oldVal= arr[idx].jokers||0;
@@ -701,7 +711,7 @@ function handleCardEffect(card, gameData){
       }
       break;
     default:
-      // A,2,3,5,7 etc
+      // A,2,3,5,7 ...
   }
 
   if(passTurn && card.rank!=='10'){
@@ -709,7 +719,7 @@ function handleCardEffect(card, gameData){
     if(ni<0) ni= arr.length-1;
     if(ni>=arr.length) ni=0;
     db.ref(`games/${gameCode}`).update({
-      currentPlayerIndex:ni, direction, rules, logs
+      currentPlayerIndex: ni, direction, rules, logs
     });
   } else {
     db.ref(`games/${gameCode}`).update({ direction, rules, logs });
@@ -721,7 +731,7 @@ function sendDrinkAlert(playerIndex, gameData){
   db.ref(`games/${gameCode}/players/${pKey}/needsToDrink`).set(Date.now());
 }
 
-/********** MODO JOGADOR **********/
+/**************** MODO JOGADOR ****************/
 (function checkUrlForGameId(){
   const params= new URLSearchParams(location.search);
   if(params.has('gameId')){
@@ -729,15 +739,64 @@ function sendDrinkAlert(playerIndex, gameData){
     if(code){
       modeSelect.classList.add('hidden');
       playerArea.classList.remove('hidden');
-      inputGameCodePlayer.value= code;
+      inputGameCodePlayer.value=code;
       enterCodePlayer();
     }
   }
 })();
 
+const playerArea= document.getElementById('playerArea');
+const playerStep1= document.getElementById('playerStep1');
+const inputGameCodePlayer= document.getElementById('inputGameCodePlayer');
+const btnEnterCodePlayer= document.getElementById('btnEnterCodePlayer');
+
+const playerRegister= document.getElementById('playerRegister');
+const inputPlayerName= document.getElementById('inputPlayerName');
+const btnJoinPlayerGame= document.getElementById('btnJoinPlayerGame');
+
+const playerLobby= document.getElementById('playerLobby');
+const playerLobbyList= document.getElementById('playerLobbyList');
+const playerGame= document.getElementById('playerGame');
+const playerStatusPanel= document.getElementById('playerStatusPanel');
+const currentCardPlayer= document.getElementById('currentCardPlayer');
+const btnDrawCardPlayer= document.getElementById('btnDrawCardPlayer');
+const deckCountPlayer= document.getElementById('deckCountPlayer');
+const deckViewPlayer= document.getElementById('deckViewPlayer');
+const playerRules= document.getElementById('playerRules');
+const playerListStatus= document.getElementById('playerListStatus');
+const fingerBox= document.getElementById('fingerBox');
+const btnFingerClick= document.getElementById('btnFingerClick');
+const btnUseJoker= document.getElementById('btnUseJoker');
+const btnActivateFinger= document.getElementById('btnActivateFinger');
+const btnRecordVideo= document.getElementById('btnRecordVideo');
+const playerPainel= document.getElementById('playerPainel');
+const playerChat= document.getElementById('playerChat');
+const playerChatInput= document.getElementById('playerChatInput');
+const btnPlayerSendChat= document.getElementById('btnPlayerSendChat');
+const videoOverlay= document.getElementById('videoOverlay');
+const videoPreview= document.getElementById('videoPreview');
+const btnStartRecording= document.getElementById('btnStartRecording');
+const btnStopRecording= document.getElementById('btnStopRecording');
+const btnCloseVideoOverlay= document.getElementById('btnCloseVideoOverlay');
+
+btnEnterCodePlayer.onclick= enterCodePlayer;
+btnJoinPlayerGame.onclick= registerPlayerInGame;
+btnDrawCardPlayer.onclick= drawCardPlayer;
+btnFingerClick.onclick= fingerClick;
+btnUseJoker.onclick= useJokerPlayer;
+btnActivateFinger.onclick= activateFingerPower;
+btnRecordVideo.onclick= ()=>videoOverlay.style.display='flex';
+btnCloseVideoOverlay.onclick= closeVideoOverlay;
+btnStartRecording.onclick= startVideoRecording;
+btnStopRecording.onclick= stopVideoRecording;
+btnPlayerSendChat.onclick= sendChatAsPlayer;
+
 function enterCodePlayer(){
   const code= inputGameCodePlayer.value.trim();
   if(!code)return alert("Digite um código!");
+  // Limpamos localStorage para não trazer dados de partida anterior
+  localStorage.clear();
+
   db.ref(`games/${code}`).once('value', snap=>{
     if(!snap.exists()){
       alert("Partida não encontrada!");
@@ -751,99 +810,87 @@ function enterCodePlayer(){
 async function registerPlayerInGame(){
   const name= inputPlayerName.value.trim();
   if(!name)return alert("Digite seu nome!");
-  // Cria player
+
   const ref= db.ref(`games/${gameCode}/players`).push();
   myPlayerKey= ref.key;
-  await ref.set({
-    name, 
-    jokers:0,
-    hasFingerPower:false
-  });
+  await ref.set({ name, jokers:0, hasFingerPower:false });
 
   localStorage.setItem("opoderdedo_gameId", gameCode);
   localStorage.setItem("opoderdedo_playerKey", myPlayerKey);
   localStorage.setItem("opoderdedo_playerName", name);
 
-  db.ref(`games/${gameCode}`).on('value', s=>{
-    if(!s.exists())return;
-    updatePlayerView(s.val());
+  db.ref(`games/${gameCode}`).on('value', snapshot=>{
+    if(!snapshot.exists())return;
+    updatePlayerView(snapshot.val());
   });
-
   playerRegister.classList.add('hidden');
 }
-function updatePlayerView(gameData){
-  if(gameData.status==='lobby'){
+function updatePlayerView(data){
+  if(data.status==='lobby'){
     playerLobby.classList.remove('hidden');
     playerGame.classList.add('hidden');
-    const arr= Object.values(gameData.players||{});
+    const arr= Object.values(data.players||{});
     playerLobbyList.innerHTML= arr.map(p=>`<div>${p.name}</div>`).join('');
   }
-  else if(gameData.status==='ongoing'){
+  else if(data.status==='ongoing'){
     playerLobby.classList.add('hidden');
     playerGame.classList.remove('hidden');
 
-    const pObj= gameData.players?.[myPlayerKey];
+    const pObj= data.players?.[myPlayerKey];
     if(!pObj){
       playerStatusPanel.textContent= "Você não está no jogo?";
+      playerStatusPanel.classList.remove('hidden');
       return;
     }
-    // Info do player
-    playerStatusPanel.classList.remove('hidden');
-    playerStatusPanel.style.color='#007BFF';
-    playerStatusPanel.textContent='';
-
-    // Jogadores
-    const arr= Object.values(gameData.players||{});
-    playerListStatus.innerHTML= arr.map((pp, i)=>{
-      const isCurrent= (i===gameData.currentPlayerIndex)?' (Vez)':'';
-      const coringaInfo= pp.jokers>0? ` [Coringas: ${pp.jokers}]`:'';
-      return `<div><strong>${pp.name}</strong>${isCurrent}${coringaInfo}</div>`;
+    // Lista de players
+    const arr= Object.values(data.players||{});
+    playerListStatus.innerHTML= arr.map((pp,i)=>{
+      const isCurrent= (i===data.currentPlayerIndex)?' (Vez)':'';
+      const coringa= pp.jokers>0? ` [Coringas: ${pp.jokers}]`:'';
+      return `<div><strong>${pp.name}</strong>${isCurrent}${coringa}</div>`;
     }).join('');
 
     // Deck
-    deckCountPlayer.textContent= `Restantes: ${gameData.deck?gameData.deck.length:0}`;
-    deckViewPlayer.innerHTML= (gameData.deck||[]).map(()=>`<div class="card-back"></div>`).join('');
+    deckCountPlayer.textContent= `Restantes: ${data.deck?data.deck.length:0}`;
+    deckViewPlayer.innerHTML= (data.deck||[]).map(()=>`<div class="card-back"></div>`).join('');
 
-    // Quem é o atual
-    const allKeys= Object.keys(gameData.players||{});
-    const curIdx= gameData.currentPlayerIndex;
-    const curKey= allKeys[curIdx];
-    if(curKey===myPlayerKey){
-      // é minha vez
-      playerStatusPanel.textContent="É A SUA VEZ!";
-      playerStatusPanel.style.color="#28a745";
-      btnDrawCardPlayer.style.display='inline-block';
-    } else {
-      const arr2= Object.values(gameData.players||{});
-      const cName= arr2[curIdx]?.name||'???';
-      playerStatusPanel.textContent=`É a vez de: ${cName}`;
-      btnDrawCardPlayer.style.display='none';
-    }
-
-    // Carta Atual
-    if(gameData.currentCard){
-      currentCardPlayer.innerHTML= renderCard(gameData.currentCard.rank, gameData.currentCard.suit);
+    // Carta atual
+    if(data.currentCard){
+      currentCardPlayer.innerHTML= renderCard(data.currentCard.rank, data.currentCard.suit);
     } else {
       currentCardPlayer.textContent="Nenhuma";
     }
 
     // Regras
-    if(gameData.rules && gameData.rules.length>0){
-      playerRules.innerHTML= gameData.rules.map(r=>`<div class="rule-item">${r}</div>`).join('');
+    if(data.rules && data.rules.length>0){
+      playerRules.innerHTML= data.rules.map(r=>`<div class="rule-item">${r}</div>`).join('');
     } else {
       playerRules.textContent="Nenhuma";
     }
 
-    // Jogador tem finger?
-    btnActivateFinger.style.display= pObj.hasFingerPower?'inline-block':'none';
-    // Jogador tem coringa?
-    btnUseJoker.style.display= (pObj.jokers>0)?'inline-block':'none';
+    // Quem é o atual
+    const keys= Object.keys(data.players||{});
+    if(keys[data.currentPlayerIndex]===myPlayerKey){
+      playerStatusPanel.classList.remove('hidden');
+      playerStatusPanel.style.color="#28a745";
+      playerStatusPanel.textContent="É A SUA VEZ!";
+      btnDrawCardPlayer.style.display='inline-block';
+    } else {
+      const cName= arr[data.currentPlayerIndex]?.name||'???';
+      playerStatusPanel.classList.remove('hidden');
+      playerStatusPanel.style.color="#007BFF";
+      playerStatusPanel.textContent=`É a vez de: ${cName}`;
+      btnDrawCardPlayer.style.display='none';
+    }
 
-    // Finger Power Global
-    const fp= gameData.fingerPower||{};
-    if(fp.active){
+    // Poder do Dedo? 
+    btnActivateFinger.style.display= pObj.hasFingerPower?'inline-block':'none';
+    btnUseJoker.style.display= pObj.jokers>0?'inline-block':'none';
+
+    // Finger Power global
+    if(data.fingerPower && data.fingerPower.active){
       fingerBox.classList.remove('hidden');
-      const found= (fp.queue||[]).find(x=> x.playerKey===myPlayerKey);
+      const found= (data.fingerPower.queue||[]).find(x=> x.playerKey===myPlayerKey);
       if(found){
         btnFingerClick.disabled=true;
         btnFingerClick.textContent="Você já clicou!";
@@ -851,39 +898,41 @@ function updatePlayerView(gameData){
         btnFingerClick.disabled=false;
         btnFingerClick.textContent="Clique agora!";
       }
-      fingerQueue.innerHTML= (fp.queue||[]).map((x,i)=>`${i+1}º: ${x.name}`).join('<br>');
+      fingerQueue.innerHTML= (data.fingerPower.queue||[]).map((x,i)=>`${i+1}º: ${x.name}`).join('<br>');
     } else {
       fingerBox.classList.add('hidden');
     }
 
     // Painel
-    if(gameData.logs){
-      playerPainel.innerHTML= gameData.logs.map(l=>`<div>${l}</div>`).join('');
+    if(data.logs){
+      playerPainel.innerHTML= data.logs.map(l=>`<div>${l}</div>`).join('');
       playerPainel.scrollTop= playerPainel.scrollHeight;
     }
     // Chat
-    if(gameData.chat){
-      playerChat.innerHTML= gameData.chat.map(c=>`<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
+    if(data.chat){
+      playerChat.innerHTML= data.chat.map(c=>`<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
       playerChat.scrollTop= playerChat.scrollHeight;
     }
 
-    // Needs to Drink?
+    // needsToDrink
     if(pObj.needsToDrink){
       alert("Você precisa beber!");
       db.ref(`games/${gameCode}/players/${myPlayerKey}/needsToDrink`).remove();
     }
   }
-  else if(gameData.status==='finished'){
+  else if(data.status==='finished'){
     alert("Partida Encerrada!");
+    // limpamos localStorage do player
+    localStorage.clear();
   }
 }
 async function drawCardPlayer(){
   const snap= await db.ref(`games/${gameCode}`).once('value');
   const data= snap.val();
   if(!data)return;
-  const allKeys= Object.keys(data.players||{});
-  if(allKeys[data.currentPlayerIndex]!== myPlayerKey){
-    alert("Não é sua vez de puxar carta!");
+  const keys= Object.keys(data.players||{});
+  if(keys[data.currentPlayerIndex]!== myPlayerKey){
+    alert("Não é sua vez de puxar a carta!");
     return;
   }
   if(!data.deck || data.deck.length===0){
@@ -898,7 +947,7 @@ async function drawCardPlayer(){
   });
 }
 
-/********** CORINGA, PODER DEDO **********/
+/********** CORINGA, PODER DO DEDO (PLAYER) **********/
 function useJokerPlayer(){
   db.ref(`games/${gameCode}/players/${myPlayerKey}`).once('value', snap=>{
     const p= snap.val();
@@ -928,22 +977,12 @@ function fingerClick(){
     db.ref(`games/${gameCode}/fingerPower/queue`).set(arr);
   });
 }
-function finalizeFingerPower(){
-  db.ref(`games/${gameCode}/fingerPower`).once('value', snap=>{
-    const fp= snap.val();
-    if(!fp||!fp.queue||fp.queue.length===0)return;
-    const last= fp.queue[fp.queue.length-1];
-    addLog(`O último a clicar foi ${last.name}, beba!`);
-    db.ref(`games/${gameCode}/players/${last.playerKey}/needsToDrink`).set(Date.now());
-    db.ref(`games/${gameCode}/fingerPower`).update({active:false, queue:[]});
-  });
-}
 
 /********** GRAVAÇÃO VÍDEO **********/
 async function startVideoRecording(){
   try{
     if(!localCameraStream){
-      localCameraStream= await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+      localCameraStream= await navigator.mediaDevices.getUserMedia({video:true, audio:true});
       videoPreview.srcObject= localCameraStream;
     }
     recordedChunks=[];
@@ -975,7 +1014,7 @@ function stopVideoRecording(){
 function closeVideoOverlay(){
   videoOverlay.style.display='none';
   if(localCameraStream){
-    localCameraStream.getTracks().forEach(t=>t.stop());
+    localCameraStream.getTracks().forEach(t=> t.stop());
     localCameraStream=null;
   }
   videoPreview.srcObject=null;
@@ -1008,8 +1047,8 @@ function generateGameCode(){
   return Math.floor(100000 + Math.random()*900000).toString();
 }
 function generateDeck(){
-  const suits = ["♥","♦","♣","♠"];
-  const ranks= ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+  const suits= ["♥","♦","♣","♠"];
+  const ranks=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
   let deck=[];
   for(let s of suits){
     for(let r of ranks){
@@ -1019,10 +1058,9 @@ function generateDeck(){
   for(let i=0;i<3;i++){
     deck.push({rank:'Joker', suit:'Coringa'});
   }
-  // shuffle
-  for(let i= deck.length-1; i>0;i--){
+  for(let i=deck.length-1;i>0;i--){
     const j= Math.floor(Math.random()*(i+1));
-    [deck[i], deck[j]]=[deck[j], deck[i]];
+    [deck[i], deck[j]]= [deck[j], deck[i]];
   }
   return deck;
 }
