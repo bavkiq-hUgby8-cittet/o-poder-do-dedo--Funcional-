@@ -1,0 +1,58 @@
+/* RESET E CONFIGURAÇÕES BÁSICAS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Paleta de cores principal */
+    --primary: #6200EA;
+    --primary-light: #7C4DFF;
+    --primary-dark: #4A148C;
+    --secondary: #FF3D00;
+    --secondary-light: #FF6E40;
+    --secondary-dark: #DD2C00;
+    --success: #00C853;
+    --danger: #F50057;
+    --warning: #FFD600;
+    --info: #00B8D4;
+    --dark: #263238;
+    --light: #ECEFF1;
+    --white: #ffffff;
+    --black: #000000;
+    --card-red: #E53935;
+    --card-black: #212121;
+
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    --shadow-md: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    --shadow-lg: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+
+    /* Transições */
+    --transition-fast: all 0.2s ease;
+    --transition-normal: all 0.3s ease;
+
+    /* Fontes */
+    --font-heading: 'Montserrat', sans-serif;
+    --font-body: 'Poppins', sans-serif;
+
+    /* Tamanhos */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 16px;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    background: var(--light);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--dark);
+    overflow: hidden; /* Previne scroll global */
+}
+
+/* Resto do conteúdo CSS */
